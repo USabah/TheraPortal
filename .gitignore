@@ -44,3 +44,4 @@ app.*.map.json
 
 # Credentials
 /assets/*Credentials.json
+*GoogleService-Info.plist
