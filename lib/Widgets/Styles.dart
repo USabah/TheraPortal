@@ -62,7 +62,7 @@ const round = BorderRadius.all(
 const boxShadow = BoxShadow(
   spreadRadius: 0.0,
   blurRadius: 0.0,
-  color: Styles.darkGrey,
+  color: Styles.orangeYellowish,
   offset: Offset.zero,
 );
 
@@ -78,3 +78,14 @@ const inputText = TextStyle(
   fontWeight: FontWeight.w500,
   letterSpacing: 1,
 );
+
+const logoText = TextStyle(
+    color: Styles.orangeYellowish,
+    fontSize: 60, // Adjust the font size as needed
+    fontWeight: FontWeight.bold,
+    fontStyle: FontStyle.italic,
+    fontFamily: 'Roboto');
+
+const buttonWidthFactor = 0.80;
+const buttonHeightFactor = 0.05;
+const buttonTextStyle = TextStyle(fontSize: 30, color: Colors.black);

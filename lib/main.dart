@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:theraportal/Pages/CommunicationPage.dart';
-import 'package:theraportal/Pages/SignInPage.dart';
-import 'package:theraportal/Pages/TestingPage.dart';
+import 'package:theraportal/Pages/ExerciseTest.dart';
+import 'package:theraportal/Pages/HomePage.dart';
+import 'package:theraportal/Pages/LandingPage.dart';
+import 'package:theraportal/Utilities/AuthRouter.dart';
 import 'package:theraportal/Widgets/Widgets.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -35,12 +37,22 @@ class _AppState extends State<App> {
           );
         } else if (snapshot.connectionState == ConnectionState.done) {
           // Firebase initialized successfully
-          // You can return your app's main widget here
-          return MaterialApp(
+          // Check if the user is authenticated
+          if (AuthRouter().isLoggedIn()) {
+            return MaterialApp(
               title: "TheraPortal",
               debugShowCheckedModeBanner: false,
               theme: themeStyle,
-              home: CommunicationPage());
+              home: HomePage(),
+            );
+          } else {
+            return MaterialApp(
+              title: "TheraPortal",
+              debugShowCheckedModeBanner: false,
+              theme: themeStyle,
+              home: LandingPage(),
+            );
+          }
         } else {
           // Firebase initialization is in progress
           return const Scaffold(
