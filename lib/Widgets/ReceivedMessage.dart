@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'widgets.dart';
+import 'package:theraportal/Widgets/Widgets.dart';
 
 class ReceivedMessage extends StatelessWidget {
   const ReceivedMessage({
