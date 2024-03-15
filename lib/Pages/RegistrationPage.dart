@@ -17,12 +17,12 @@ class LargeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Text("Registration Page");
+    return const Text("Registration Page Test");
   }
 }
 
 class RegistrationPage extends StatelessWidget {
-  static const Key pageKey = Key("Registration Page Test");
+  static const Key pageKey = Key("Registration Page");
 
   @override
   Widget build(BuildContext context) {
