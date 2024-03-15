@@ -22,7 +22,7 @@ class LargeScreen extends StatelessWidget {
 }
 
 class RegistrationPage extends StatelessWidget {
-  static const Key pageKey = Key("Registration Page");
+  static const Key pageKey = Key("Registration Page Test");
 
   @override
   Widget build(BuildContext context) {
