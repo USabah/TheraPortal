@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:theraportal/Pages/LandingPage.dart';
 
 class AuthRouter {
   /// Returns a stream that listens to authentication state changes
@@ -30,13 +31,9 @@ class AuthRouter {
   }
 
   void logout(BuildContext context) {
-    // FirebaseAuth.instance.signOut();
-    // Navigator.pushAndRemoveUntil(
-    //     context,
-    //     MaterialPageRoute(
-    //       builder: (ctxt) => LandingPage()
-    //     ),
-    //         (route) => false);
+    FirebaseAuth.instance.signOut();
+    Navigator.pushAndRemoveUntil(context,
+        MaterialPageRoute(builder: (ctxt) => LandingPage()), (route) => false);
   }
 
   /// Changes the user's password

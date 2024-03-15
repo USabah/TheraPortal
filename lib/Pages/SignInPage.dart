@@ -3,12 +3,21 @@ import 'package:theraportal/Utilities/AuthRouter.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:theraportal/Widgets/Widgets.dart';
 
-class SignInPage extends StatefulWidget {
+class Body extends StatelessWidget {
   @override
-  _SignInPageState createState() => _SignInPageState();
+  Widget build(BuildContext context) {
+    return ResponsiveWidget(
+      largeScreen: LargeScreen(),
+    );
+  }
 }
 
-class _SignInPageState extends State<SignInPage> {
+class LargeScreen extends StatefulWidget {
+  @override
+  _LargeScreenPageState createState() => _LargeScreenPageState();
+}
+
+class _LargeScreenPageState extends State<LargeScreen> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -108,6 +117,18 @@ class _SignInPageState extends State<SignInPage> {
           );
         },
       ),
+    );
+  }
+}
+
+class SignInPage extends StatelessWidget {
+  static const Key pageKey = Key("Sign In Page");
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      key: pageKey,
+      body: Body(),
     );
   }
 }

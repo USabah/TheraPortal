@@ -26,6 +26,12 @@ class _BottomChatBarState extends State<BottomChatBar> {
   static const otherUserId = "2"; //
   late CollectionReference chatsRef;
 
+  @override
+  void initState() {
+    super.initState();
+    init();
+  }
+
   void init() async {
     chatsRef = await FirestoreRouter()
         .getMessagesReference(currentUserId, otherUserId);
@@ -33,7 +39,7 @@ class _BottomChatBarState extends State<BottomChatBar> {
 
   Future sendMessage() async {
     if (textController.text.isNotEmpty) {
-      if (textController.text.length < 40) {
+      if (textController.text.length < 80) {
         try {
           return chatsRef.doc().set(
             {
