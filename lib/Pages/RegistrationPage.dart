@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../Widgets/Widgets.dart';
+import 'package:theraportal/Widgets/Widgets.dart';
 
 class Body extends StatelessWidget {
   const Body({super.key});

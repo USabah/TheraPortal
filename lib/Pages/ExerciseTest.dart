@@ -1,8 +1,7 @@
 import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
 import 'package:theraportal/Utilities/GoogleDriveRouter.dart';
-import '../Widgets/Widgets.dart';
+import 'package:theraportal/Widgets/Widgets.dart';
 
 class Body extends StatelessWidget {
   @override

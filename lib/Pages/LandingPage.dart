@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:theraportal/Pages/RegistrationPage.dart';
 import 'package:theraportal/Pages/SignInPage.dart';
 import 'package:theraportal/Utilities/GoogleDriveRouter.dart';
-import '../Widgets/Widgets.dart';
+import 'package:theraportal/Widgets/Widgets.dart';
 
 class Body extends StatelessWidget {
   const Body({super.key});
