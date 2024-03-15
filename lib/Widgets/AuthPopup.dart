@@ -1,5 +1,4 @@
 import "package:flutter/material.dart";
-import 'package:theraportal/Widgets/RoundedButtonExample.dart';
 import "package:theraportal/Widgets/Widgets.dart";
 
 class AuthPopup extends StatelessWidget {

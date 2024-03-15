@@ -5,8 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:theraportal/Utilities/AuthRouter.dart';
 import 'package:theraportal/Utilities/FirestoreRouter.dart';
 import 'package:theraportal/Utilities/GoogleDriveRouter.dart';
-import 'package:theraportal/Widgets/BottomChatBar.dart';
-import '../Widgets/Widgets.dart';
+import 'package:theraportal/Widgets/Widgets.dart';
 
 class Body extends StatelessWidget {
   @override
