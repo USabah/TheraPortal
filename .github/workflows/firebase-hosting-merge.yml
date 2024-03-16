@@ -24,4 +24,5 @@ jobs:
         with:
           repoToken: "${{ secrets.GITHUB_TOKEN }}"
           firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT_THERAPORTAL_A9B26 }}"
+          channelId: live
           projectId: theraportal-a9b26
