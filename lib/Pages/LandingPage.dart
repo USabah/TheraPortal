@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:theraportal/Pages/RegistrationPage.dart';
+import 'package:theraportal/Pages/AccountTypePage.dart';
 import 'package:theraportal/Pages/SignInPage.dart';
 import 'package:theraportal/Utilities/GoogleDriveRouter.dart';
 import 'package:theraportal/Widgets/Widgets.dart';
@@ -33,8 +33,8 @@ class LargeScreen extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.all(18.0),
               child: SizedBox(
-                width: size.width * buttonWidthFactor,
-                height: size.height * buttonHeightFactor,
+                width: size.width * buttonWidthFactor, //332
+                height: size.height * buttonHeightFactor, //45
                 child: ElevatedButton(
                   onPressed: () {
                     Navigator.of(context).push(
@@ -56,7 +56,7 @@ class LargeScreen extends StatelessWidget {
               child: ElevatedButton(
                 onPressed: () {
                   Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => RegistrationPage()));
+                      builder: (context) => AccountTypePage()));
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Styles.orangeYellowish,

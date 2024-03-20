@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:theraportal/Objects/User.dart';
 import 'package:theraportal/Pages/CommunicationPage.dart';
+import 'package:theraportal/Pages/DOBPage.dart';
 import 'package:theraportal/Pages/ExerciseTest.dart';
 import 'package:theraportal/Pages/HomePage.dart';
 import 'package:theraportal/Pages/LandingPage.dart';
+import 'package:theraportal/Pages/AccountTypePage.dart';
 import 'package:theraportal/Utilities/AuthRouter.dart';
 import 'package:theraportal/Widgets/Widgets.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -50,7 +53,10 @@ class _AppState extends State<App> {
               title: "TheraPortal",
               debugShowCheckedModeBanner: false,
               theme: themeStyle,
-              home: LandingPage(),
+              home: AccountTypePage(),
+              // DOBPage(
+              //   userType: UserType.Patient,
+              // ),
             );
           }
         } else {
