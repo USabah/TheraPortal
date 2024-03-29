@@ -69,7 +69,7 @@ class _LargeScreenState extends State<LargeScreen> {
                     child: Column(
                       children: <Widget>[
                         const Text(
-                          'Please select your date of birth',
+                          "Please select the patient's date of birth",
                           style: TextStyle(color: Styles.beige),
                         ),
                         const SizedBox(
@@ -82,11 +82,16 @@ class _LargeScreenState extends State<LargeScreen> {
                             onPressed: () async {
                               final DateTime? selectedDate =
                                   await showDatePicker(
-                                context: context,
-                                initialDate: DateTime.now(),
-                                firstDate: DateTime(1900),
-                                lastDate: DateTime.now(),
-                              );
+                                      context: context,
+                                      initialDate: DateTime.now(),
+                                      firstDate: DateTime(1900),
+                                      lastDate: DateTime.now(),
+                                      initialEntryMode:
+                                          DatePickerEntryMode.calendar,
+                                      initialDatePickerMode:
+                                          DatePickerMode.year,
+                                      locale: const Locale('en', 'US'));
+
                               // Update dob variable with selected date
                               if (selectedDate != null) {
                                 setState(() {
@@ -114,6 +119,7 @@ class _LargeScreenState extends State<LargeScreen> {
                               dob != null
                                   ? DateFormat.yMd().format(dob!)
                                   : 'Select Date of Birth',
+                              style: const TextStyle(color: Styles.beige),
                             ),
                           ),
                         ),
@@ -137,7 +143,7 @@ class _LargeScreenState extends State<LargeScreen> {
                               } else {
                                 setState(() {
                                   errorMessage =
-                                      "Please input your date of birth.";
+                                      "Please input the patient's date of birth.";
                                 });
                               }
                             },

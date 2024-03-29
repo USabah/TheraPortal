@@ -25,13 +25,15 @@ class LargeScreen extends StatefulWidget {
 class _LargeScreenState extends State<LargeScreen> {
   UserType? selectedAccountType;
   String? errorMessage;
+  String? selectedTherapistType;
+  String? inputtedTherapistType;
+  String? _therapistInputError;
   bool continueBtnPressed = false;
   Map<String, dynamic> userMap = {};
 
   @override
   void initState() {
     super.initState();
-    // Initialize the variables in initState
     selectedAccountType = null;
     errorMessage = null;
     continueBtnPressed = false;
@@ -48,6 +50,7 @@ class _LargeScreenState extends State<LargeScreen> {
         child: LayoutBuilder(
           builder: (BuildContext context, BoxConstraints constraints) {
             return SingleChildScrollView(
+              scrollDirection: Axis.vertical,
               child: ConstrainedBox(
                 constraints: BoxConstraints(
                   minHeight: constraints.maxHeight,
@@ -65,11 +68,12 @@ class _LargeScreenState extends State<LargeScreen> {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: <Widget>[
                         const Text(
-                          'Please select your account type',
+                          'Please select an account type',
                           style: TextStyle(color: Styles.beige),
                         ),
                         const SizedBox(
-                            height: 8), //Add space between text and dropdown
+                          height: 8,
+                        ), //Add space between text and dropdown
                         DropdownButtonFormField<UserType>(
                           value: selectedAccountType,
                           items: UserType.values.map((userType) {
@@ -86,20 +90,76 @@ class _LargeScreenState extends State<LargeScreen> {
                               selectedAccountType = value;
                               errorMessage = null;
                               continueBtnPressed = false;
+                              selectedTherapistType = null;
                             });
                           },
                           decoration: const InputDecoration(
-                            labelText: 'Select Option Here',
-                            border: OutlineInputBorder(),
-                          ),
-                          dropdownColor: Colors.black,
+                              labelText: 'Select Option Here',
+                              border: OutlineInputBorder()),
+                          dropdownColor: Styles.grey,
                         ),
+                        if (selectedAccountType == UserType.Therapist) ...[
+                          const SizedBox(height: 16),
+                          const Text(
+                            'Please select a therapist type',
+                            style: TextStyle(color: Styles.beige),
+                          ),
+                          const SizedBox(
+                            height: 8,
+                          ),
+                          DropdownButtonFormField<String>(
+                            value: selectedTherapistType,
+                            items: [
+                              ...DefaultTherapistTypes.map((type) {
+                                return DropdownMenuItem<String>(
+                                    value: type,
+                                    child: Text(
+                                      type,
+                                      style: TextStyle(
+                                        color: Styles.beige,
+                                        fontSize: (type.length < 40) ? 16 : 14,
+                                      ),
+                                    ));
+                              }).toList(),
+                              const DropdownMenuItem<String>(
+                                value: "Other",
+                                child: Text(
+                                  "Other",
+                                  style: TextStyle(color: Styles.beige),
+                                ),
+                              ),
+                            ],
+                            onChanged: (value) {
+                              setState(() {
+                                selectedTherapistType = value;
+                                errorMessage = null;
+                              });
+                            },
+                            decoration: const InputDecoration(
+                                labelText: 'Select Therapist Type',
+                                border: OutlineInputBorder()),
+                            dropdownColor: Styles.grey,
+                          )
+                        ],
                         errorMessage != null && continueBtnPressed
                             ? Text(
                                 errorMessage!,
                                 style: const TextStyle(color: Colors.red),
                               )
                             : const SizedBox(),
+                        if (selectedTherapistType == "Other") ...[
+                          const SizedBox(height: 8),
+                          TextFormField(
+                            decoration: InputDecoration(
+                              labelText: 'Please enter a therapist type',
+                              errorText: _therapistInputError,
+                            ),
+                            onChanged: (value) {
+                              inputtedTherapistType = value;
+                              // You can handle the input value here
+                            },
+                          ),
+                        ],
                         const SizedBox(height: 16),
                         SizedBox(
                           height: size.height * 0.04,
@@ -118,6 +178,27 @@ class _LargeScreenState extends State<LargeScreen> {
                                 case UserType.Therapist:
                                   //Select therapist type
                                   userMap['user_type'] = selectedAccountType!;
+                                  if (selectedTherapistType == null) {
+                                    errorMessage =
+                                        "Please select a therapist type from above";
+                                    setState(() {});
+                                  } else if (selectedTherapistType == "Other" &&
+                                      inputtedTherapistType == null) {
+                                    _therapistInputError =
+                                        "Please enter the type of therapist that you are above";
+                                    setState(() {});
+                                  } else {
+                                    userMap["therapist_type"] =
+                                        (inputtedTherapistType != null)
+                                            ? inputtedTherapistType
+                                            : selectedTherapistType;
+                                    Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                RegistrationPage(
+                                                    userMap: userMap)));
+                                  }
+
                                   break;
                                 case UserType.Patient:
                                   //Enter DOB
@@ -129,7 +210,7 @@ class _LargeScreenState extends State<LargeScreen> {
                                 default:
                                   setState(() {
                                     errorMessage =
-                                        "Please select an account type from above.";
+                                        "Please select an account type from above";
                                   });
                               }
                             },

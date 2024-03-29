@@ -30,7 +30,31 @@ class AuthRouter {
     }
   }
 
-  void logout(BuildContext context) {
+  Future<Object> registerUser(String emailAddress, String password) async {
+    try {
+      final credential =
+          await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: emailAddress,
+        password: password,
+      );
+      return credential;
+    } on FirebaseAuthException catch (e) {
+      return e.code;
+    }
+  }
+
+  Future<void> sendVerificationEmail() async {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      await user.sendEmailVerification();
+    }
+  }
+
+  Future<void> logout() async {
+    await FirebaseAuth.instance.signOut();
+  }
+
+  void logoutAndNavigateHome(BuildContext context) {
     FirebaseAuth.instance.signOut();
     Navigator.pushAndRemoveUntil(context,
         MaterialPageRoute(builder: (ctxt) => LandingPage()), (route) => false);
