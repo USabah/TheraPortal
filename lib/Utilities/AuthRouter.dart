@@ -50,6 +50,19 @@ class AuthRouter {
     }
   }
 
+  Future<bool> isVerified() async {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      await user.reload();
+      if (user.emailVerified) {
+        return true;
+      }
+      return false;
+    } else {
+      return false;
+    }
+  }
+
   Future<void> logout() async {
     await FirebaseAuth.instance.signOut();
   }

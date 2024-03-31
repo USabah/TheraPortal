@@ -9,6 +9,12 @@ enum UserType {
   String toString() => name;
 }
 
+Map<String, UserType> userTypeMap = {
+  "Patient": UserType.Patient,
+  "Therapist": UserType.Therapist,
+  "Administrator": UserType.Administrator
+};
+
 List<String> DefaultTherapistTypes = [
   "Art Therapist",
   "Athletic Trainer",
@@ -25,19 +31,20 @@ List<String> DefaultTherapistTypes = [
   "Speech-Language Pathologist",
 ];
 
-class User {
+class TheraportalUser {
   String id;
   String email;
   String firstName;
   String lastName;
 
-  String groupId;
+  String? groupId;
   UserType userType;
   Timestamp dateCreated;
+  Timestamp? dateOfBirth;
   String referenceCode;
   String? therapistType;
 
-  User({
+  TheraportalUser({
     required this.id,
     required this.email,
     required this.firstName,
@@ -46,21 +53,26 @@ class User {
     required this.userType,
     required this.dateCreated,
     required this.referenceCode,
+    this.dateOfBirth,
     this.therapistType,
   });
 
   //factory constructor to create a User object from a map
-  factory User.fromMap(Map<String, dynamic> user_map) {
-    return User(
+  factory TheraportalUser.fromMap(Map<String, dynamic> user_map) {
+    var user_type = user_map['user_type'];
+    user_type = (user_type is String) ? userTypeMap[user_type] : user_type;
+    user_map['org_reference_code'];
+    return TheraportalUser(
         id: user_map['userId'],
         email: user_map['email'],
         firstName: user_map['first_name'],
         lastName: user_map['last_name'],
-        groupId: user_map['group_id'],
-        userType: user_map['user_type'],
+        groupId: user_map['org_reference_code'],
+        userType: user_type,
         dateCreated:
             user_map['date_created'], //adjust according to Firestore timestamp
-        referenceCode: user_map['org_reference_code'],
+        referenceCode: user_map['user_reference_code'],
+        dateOfBirth: user_map["date_of_birth"],
         therapistType: user_map['therapist_type']);
   }
 
@@ -72,9 +84,9 @@ class User {
       'first_name': firstName,
       'last_name': lastName,
       'group_id': groupId,
-      'user_type': userType,
+      'user_type': userType.toString(),
       'date_created': dateCreated, //adjust according to Firestore timestamp
-      'reference_code': referenceCode,
+      'user_reference_code': referenceCode,
     };
   }
 }

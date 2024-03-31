@@ -1,11 +1,7 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:theraportal/Objects/User.dart';
-import 'package:theraportal/Pages/CommunicationPage.dart';
-import 'package:theraportal/Pages/DOBPage.dart';
-import 'package:theraportal/Pages/ExerciseTest.dart';
 import 'package:theraportal/Pages/HomePage.dart';
 import 'package:theraportal/Pages/LandingPage.dart';
-import 'package:theraportal/Pages/AccountTypePage.dart';
 import 'package:theraportal/Utilities/AuthRouter.dart';
 import 'package:theraportal/Widgets/Widgets.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -13,6 +9,9 @@ import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(const Directionality(textDirection: TextDirection.ltr, child: App()));
 }
 
@@ -26,11 +25,14 @@ class App extends StatefulWidget {
 class _AppState extends State<App> {
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: Firebase.initializeApp(
-        options: DefaultFirebaseOptions.currentPlatform,
-      ),
+    // return FutureBuilder(
+    //   future: Firebase.initializeApp(
+    //     options: DefaultFirebaseOptions.currentPlatform,
+    //   ),
+    return StreamBuilder(
+      stream: FirebaseAuth.instance.authStateChanges(),
       builder: (context, snapshot) {
+        // AuthRouter().logout();
         if (snapshot.hasError) {
           // Error occurred during initialization
           return Scaffold(
@@ -38,10 +40,17 @@ class _AppState extends State<App> {
               child: Text('Error initializing Firebase: ${snapshot.error}'),
             ),
           );
-        } else if (snapshot.connectionState == ConnectionState.done) {
+        } else if (snapshot.connectionState == ConnectionState.waiting) {
+          // Firebase initialization is in progress
+          return const Scaffold(
+            body: Center(
+              child: CircularProgressIndicator(),
+            ),
+          );
+        } else {
           // Firebase initialized successfully
           // Check if the user is authenticated
-          if (AuthRouter().isLoggedIn()) {
+          if (snapshot.hasData) {
             return MaterialApp(
               title: "TheraPortal",
               debugShowCheckedModeBanner: false,
@@ -53,19 +62,9 @@ class _AppState extends State<App> {
               title: "TheraPortal",
               debugShowCheckedModeBanner: false,
               theme: themeStyle,
-              home: AccountTypePage(),
-              // DOBPage(
-              //   userType: UserType.Patient,
-              // ),
+              home: LandingPage(),
             );
           }
-        } else {
-          // Firebase initialization is in progress
-          return const Scaffold(
-            body: Center(
-              child: CircularProgressIndicator(),
-            ),
-          );
         }
       },
     );

@@ -1,6 +1,9 @@
+import 'dart:math';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:theraportal/Objects/User.dart';
+import 'package:theraportal/Pages/SignInPage.dart';
 import 'package:theraportal/Utilities/AuthRouter.dart';
 import 'package:theraportal/Utilities/DatabaseRouter.dart';
 import 'package:theraportal/Utilities/FieldValidator.dart';
@@ -30,12 +33,18 @@ class _LargeScreenState extends State<LargeScreen> {
   late Map<String, dynamic> userMap;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _emailConfirmationController =
+      TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _passwordConfirmationController =
+      TextEditingController();
   final TextEditingController _firstNameController = TextEditingController();
   final TextEditingController _lastNameController = TextEditingController();
   final TextEditingController _orgCodeController = TextEditingController();
 
   bool isLoading = false;
+  bool hidePassword = true;
+  bool hideReEnterPassword = true;
   String? _emailError;
   String? _emailConfirmationError;
   String? _passwordError;
@@ -58,6 +67,7 @@ class _LargeScreenState extends State<LargeScreen> {
     _firstNameController.dispose();
     _lastNameController.dispose();
     _orgCodeController.dispose();
+    _passwordController.dispose();
     super.dispose();
   }
 
@@ -90,22 +100,62 @@ class _LargeScreenState extends State<LargeScreen> {
                         },
                       ),
                       TextFormField(
+                        controller: _emailConfirmationController,
                         decoration: InputDecoration(
                           labelText: 'Re-enter Email',
                           errorText: _emailConfirmationError,
                         ),
+                        onChanged: (_) {
+                          setState(() {
+                            _emailConfirmationError = null;
+                          });
+                        },
                       ),
                       TextFormField(
+                        controller: _passwordController,
+                        obscureText: hidePassword,
                         decoration: InputDecoration(
                           labelText: 'Password',
                           errorText: _passwordError,
+                          suffixIcon: GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                hidePassword = !hidePassword;
+                              });
+                            },
+                            child: Icon((hidePassword)
+                                ? Icons.visibility_rounded
+                                : Icons.visibility_off_rounded),
+                          ),
                         ),
+                        onChanged: (_) {
+                          setState(() {
+                            _passwordError = null;
+                          });
+                        },
                       ),
                       TextFormField(
+                        controller: _passwordConfirmationController,
+                        obscureText: hideReEnterPassword,
                         decoration: InputDecoration(
                           labelText: 'Re-enter Password',
                           errorText: _passwordConfirmationError,
+                          suffixIcon: GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                hideReEnterPassword = !hideReEnterPassword;
+                              });
+                            },
+                            child: Icon((hideReEnterPassword)
+                                ? Icons.visibility_rounded
+                                : Icons.visibility_off_rounded),
+                          ),
                         ),
+                        onChanged: (_) {
+                          setState(() {
+                            _passwordConfirmationError = null;
+                          });
+                        },
                       ),
                       TextFormField(
                         controller: _firstNameController,
@@ -113,6 +163,11 @@ class _LargeScreenState extends State<LargeScreen> {
                           labelText: 'First Name',
                           errorText: _firstNameError,
                         ),
+                        onChanged: (_) {
+                          setState(() {
+                            _firstNameError = null;
+                          });
+                        },
                       ),
                       TextFormField(
                         controller: _lastNameController,
@@ -120,6 +175,11 @@ class _LargeScreenState extends State<LargeScreen> {
                           labelText: 'Last Name',
                           errorText: _lastNameError,
                         ),
+                        onChanged: (_) {
+                          setState(() {
+                            _lastNameError = null;
+                          });
+                        },
                       ),
                       //organization code option only if the user is not an admin
                       if (userMap["user_type"] != UserType.Administrator)
@@ -131,15 +191,27 @@ class _LargeScreenState extends State<LargeScreen> {
                               labelText: 'Organization Code (optional)',
                               errorText: _orgCodeError,
                               suffixIcon: GestureDetector(
-                                onTap: _showOrgCodeInfoDialog,
+                                onTap: () {
+                                  alertFunction(
+                                      context: context,
+                                      title: 'Organization Code',
+                                      content:
+                                          "If you were brought to TheraPortal via an organization or social service, see if they provided you with their group's reference code. Alternatively, you can return to this later via your account settings.",
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                      btnText: 'Close');
+                                },
                                 child: const Icon(Icons
                                     .help_outline), // Change the icon as needed
                               ),
                             ),
+                            onChanged: (_) {
+                              setState(() {
+                                _orgCodeError = null;
+                              });
+                            },
                           ),
-                          onTap: () {
-                            _showOrgCodeInfoDialog();
-                          },
                         ),
                       const SizedBox(
                         height: 8,
@@ -205,61 +277,102 @@ class _LargeScreenState extends State<LargeScreen> {
     );
   }
 
+  String fixNameCapitalization(String input) {
+    if (input.isEmpty) {
+      return input; // Return empty string if input is empty
+    }
+    return input[0].toUpperCase() + input.substring(1).toLowerCase();
+  }
+
+  Future<String> generateReferenceCode() async {
+    int codeLength = 6;
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    final random = Random();
+    bool uniqueCode = false;
+    String code = '';
+    while (!uniqueCode) {
+      String code = String.fromCharCodes(Iterable.generate(
+          codeLength, (_) => chars.codeUnitAt(random.nextInt(chars.length))));
+      //if code does not exist already
+      if (!(await databaseRouter.fieldExists(
+          'Users', 'reference_code', code))) {
+        uniqueCode = true;
+      }
+    }
+    return code;
+  }
+
   void _submitForm() async {
     setState(() {
       isLoading = true;
     });
-    String? emailError =
-        FieldValidator().validateEmailField(_emailController.text);
-    String? passwordError =
-        FieldValidator().validatePassword(_passwordController.text);
-    String? firstNameError =
-        FieldValidator().validateFirstName(_firstNameController.text);
-    String? lastNameError =
-        FieldValidator().validateLastName(_lastNameController.text);
-    String? orgCodeError = await FieldValidator()
-        .organizationCode(_orgCodeController.text, userMap["user_type"]);
+    userMap["email"] = _emailController.text.trim();
+    userMap["password"] = _passwordController.text.trim();
+    userMap["first_name"] =
+        fixNameCapitalization(_firstNameController.text.trim());
+    userMap["last_name"] =
+        fixNameCapitalization(_lastNameController.text.trim());
+    userMap["org_reference_code"] = _orgCodeController.text.trim();
 
-    _emailError = emailError;
-    _passwordError = passwordError;
-    _firstNameError = firstNameError;
-    _lastNameError = lastNameError;
-    _orgCodeError = orgCodeError;
+    FieldValidator validator = FieldValidator();
+    _emailError = validator.validateEmailField(userMap["email"]);
+    if (userMap["email"].toLowerCase() !=
+        _emailConfirmationController.text.trim().toLowerCase()) {
+      _emailConfirmationError = "Emails do not match";
+    }
+    _passwordError = validator.validatePassword(userMap["password"]);
+    if (userMap["password"] != _passwordConfirmationController.text.trim()) {
+      _passwordConfirmationError = "Passwords do not match";
+    }
+    _firstNameError = validator.validateFirstName(userMap["first_name"]);
+    _lastNameError = validator.validateLastName(userMap["last_name"]);
+    _orgCodeError = await validator.organizationCode(
+        userMap["org_reference_code"], userMap["user_type"]);
 
     //Check if form is valid
-    if (emailError == null &&
-        passwordError == null &&
-        firstNameError == null &&
-        lastNameError == null &&
-        orgCodeError == null) {
-      userMap["email"] = _emailController.text;
-      userMap["password"] = _passwordController.text;
-      userMap["first_name"] = _firstNameController.text;
-      userMap["last_name"] = _lastNameController.text;
-      userMap["org_reference_code"] = _orgCodeController.text;
+    if (_emailError == null &&
+        _passwordError == null &&
+        _firstNameError == null &&
+        _lastNameError == null &&
+        _orgCodeError == null &&
+        _emailConfirmationError == null &&
+        _passwordConfirmationError == null) {
       dynamic res =
           await authRouter.registerUser(userMap["email"], userMap["password"]);
       if (res is String) {
         if (res == 'weak-password') {
-          passwordError = 'Error: The password provided is too weak';
+          _passwordError = 'Error: The password provided is too weak';
         } else if (res == 'email-already-in-use') {
-          emailError = 'Error: The account already exists for that email';
+          _emailError = 'Error: The account already exists for that email';
         }
       } else {
-        //account has been successfully registered - let user know
-        //that they need to verify their account
-
         //create database entry for new user
+        //first generate a user_reference_code
+        userMap["user_reference_code"] = await generateReferenceCode();
         String userId = res.user.uid;
         userMap["userId"] = userId;
         userMap['date_created'] = Timestamp.now();
-        User currentUser = User.fromMap(userMap);
+        TheraportalUser currentUser = TheraportalUser.fromMap(userMap);
         databaseRouter.addUser(currentUser);
 
         //send verification email
         await authRouter.login(userMap["email"], userMap["password"]);
         await authRouter.sendVerificationEmail();
         await authRouter.logout();
+        //account has been successfully registered - let user know
+        //that they need to verify their account
+        alertFunction(
+            context: context,
+            isDismissable: false,
+            title: "Verify Account",
+            content:
+                "Your account has been registered with TheraPortal. We have sent a verification email to your email address. Please verify your account before logging in.",
+            onPressed: () {
+              Navigator.of(context)
+                ..popUntil((route) => !Navigator.of(context).canPop())
+                ..push(MaterialPageRoute(builder: (context) => SignInPage()));
+            },
+            btnText: "Sign in");
       }
     }
     setState(() {

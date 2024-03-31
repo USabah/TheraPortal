@@ -1,4 +1,5 @@
 //To be used for any exports
+export 'Alert.dart';
 export 'AuthPopup.dart';
 export 'BottomChatBar.dart';
 export 'ChatContainer.dart';

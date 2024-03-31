@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:theraportal/Objects/User.dart';
 import 'package:theraportal/Pages/RegistrationPage.dart';
@@ -137,6 +138,8 @@ class _LargeScreenState extends State<LargeScreen> {
                             onPressed: () {
                               continueBtnPressed = true;
                               if (dob != null) {
+                                userMap["date_of_birth"] =
+                                    Timestamp.fromDate(dob!);
                                 Navigator.of(context).push(MaterialPageRoute(
                                     builder: (context) =>
                                         RegistrationPage(userMap: userMap)));

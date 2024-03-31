@@ -15,13 +15,13 @@ class DatabaseRouter {
   }
 
   //add a user to the database
-  Future<void> addUser(User user) async {
+  Future<void> addUser(TheraportalUser user) async {
     CollectionReference usersRef =
         FirebaseFirestore.instance.collection('Users');
     await usersRef.doc(user.id).set(user.toMap());
   }
 
-  Future<User?> getUserFromFirestore(String userId) async {
+  Future<TheraportalUser?> getUserFromFirestore(String userId) async {
     DocumentReference userRef =
         FirebaseFirestore.instance.collection('Users').doc(userId);
     DocumentSnapshot userSnapshot = await userRef.get();
@@ -29,7 +29,7 @@ class DatabaseRouter {
       //cast the data to a map and convert to a User
       Map<String, dynamic> userData =
           userSnapshot.data() as Map<String, dynamic>;
-      User user = User.fromMap(userData);
+      TheraportalUser user = TheraportalUser.fromMap(userData);
       return user;
     } else {
       return null;
