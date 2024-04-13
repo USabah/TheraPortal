@@ -149,25 +149,24 @@ class _LargeScreenPageState extends State<LargeScreen> {
     });
     String email = _emailController.text.trim();
     String password = _passwordController.text.trim();
-    FieldValidator validator = FieldValidator();
 
-    _emailError = validator.validateEmailField(email);
-    _passwordError = validator.validatePassword(password);
+    _emailError = FieldValidator.validateEmailField(email);
+    _passwordError = FieldValidator.validatePassword(password);
 
     //if the form is valid, attempt to sign in with email and password
     if (_emailError == null && _passwordError == null) {
-      User? user = await AuthRouter().login(email, password);
+      User? user = await AuthRouter.login(email, password);
       if (user == null) {
         _errorMessage = 'The Email/Password combination entered was not found';
       } else {
         //check if account is verified
-        if (!(await AuthRouter().isVerified())) {
+        if (!(await AuthRouter.isVerified())) {
           //logout and present popup alert telling the user to verify themselves
           if (!verificationEmailSent) {
-            await AuthRouter().sendVerificationEmail();
+            await AuthRouter.sendVerificationEmail();
             verificationEmailSent = true;
           }
-          await AuthRouter().logout();
+          await AuthRouter.logout();
           alertFunction(
               context: context,
               title: "Account Not Verified",

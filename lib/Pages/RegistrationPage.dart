@@ -42,6 +42,8 @@ class _LargeScreenState extends State<LargeScreen> {
   final TextEditingController _lastNameController = TextEditingController();
   final TextEditingController _orgCodeController = TextEditingController();
 
+  DatabaseRouter databaseRouter = DatabaseRouter();
+
   bool isLoading = false;
   bool hidePassword = true;
   bool hideReEnterPassword = true;
@@ -52,8 +54,6 @@ class _LargeScreenState extends State<LargeScreen> {
   String? _firstNameError;
   String? _lastNameError;
   String? _orgCodeError;
-  AuthRouter authRouter = AuthRouter();
-  DatabaseRouter databaseRouter = DatabaseRouter();
 
   @override
   void initState() {
@@ -314,19 +314,18 @@ class _LargeScreenState extends State<LargeScreen> {
         fixNameCapitalization(_lastNameController.text.trim());
     userMap["org_reference_code"] = _orgCodeController.text.trim();
 
-    FieldValidator validator = FieldValidator();
-    _emailError = validator.validateEmailField(userMap["email"]);
+    _emailError = FieldValidator.validateEmailField(userMap["email"]);
     if (userMap["email"].toLowerCase() !=
         _emailConfirmationController.text.trim().toLowerCase()) {
       _emailConfirmationError = "Emails do not match";
     }
-    _passwordError = validator.validatePassword(userMap["password"]);
+    _passwordError = FieldValidator.validatePassword(userMap["password"]);
     if (userMap["password"] != _passwordConfirmationController.text.trim()) {
       _passwordConfirmationError = "Passwords do not match";
     }
-    _firstNameError = validator.validateFirstName(userMap["first_name"]);
-    _lastNameError = validator.validateLastName(userMap["last_name"]);
-    _orgCodeError = await validator.organizationCode(
+    _firstNameError = FieldValidator.validateFirstName(userMap["first_name"]);
+    _lastNameError = FieldValidator.validateLastName(userMap["last_name"]);
+    _orgCodeError = await FieldValidator.organizationCode(
         userMap["org_reference_code"], userMap["user_type"]);
 
     //Check if form is valid
@@ -338,7 +337,7 @@ class _LargeScreenState extends State<LargeScreen> {
         _emailConfirmationError == null &&
         _passwordConfirmationError == null) {
       dynamic res =
-          await authRouter.registerUser(userMap["email"], userMap["password"]);
+          await AuthRouter.registerUser(userMap["email"], userMap["password"]);
       if (res is String) {
         if (res == 'weak-password') {
           _passwordError = 'Error: The password provided is too weak';
@@ -356,9 +355,9 @@ class _LargeScreenState extends State<LargeScreen> {
         databaseRouter.addUser(currentUser);
 
         //send verification email
-        await authRouter.login(userMap["email"], userMap["password"]);
-        await authRouter.sendVerificationEmail();
-        await authRouter.logout();
+        await AuthRouter.login(userMap["email"], userMap["password"]);
+        await AuthRouter.sendVerificationEmail();
+        await AuthRouter.logout();
         //account has been successfully registered - let user know
         //that they need to verify their account
         alertFunction(

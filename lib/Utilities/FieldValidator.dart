@@ -2,7 +2,7 @@ import 'package:theraportal/Objects/User.dart';
 import 'package:theraportal/Utilities/DatabaseRouter.dart';
 
 class FieldValidator {
-  String? validateEmailField(String? value) {
+  static String? validateEmailField(String? value) {
     if (value == null || value.isEmpty) {
       return 'Please enter your email';
     }
@@ -15,29 +15,29 @@ class FieldValidator {
   }
 
   //logic handled by firebase registration
-  String? validatePassword(String? value) {
+  static String? validatePassword(String? value) {
     if (value == null || value.isEmpty) {
       return 'Please enter a password';
     }
     return null;
   }
 
-  String? validateFirstName(String? value) {
+  static String? validateFirstName(String? value) {
     if (value == null || value.isEmpty) {
       return 'Please enter your first name';
     }
     return null;
   }
 
-  String? validateLastName(String? value) {
+  static String? validateLastName(String? value) {
     if (value == null || value.isEmpty) {
       return 'Please enter your first name';
     }
     return null;
   }
 
-  Future<String?> organizationCode(String? value, UserType user_type) async {
-    DatabaseRouter databaseRouter = DatabaseRouter();
+  static Future<String?> organizationCode(
+      String? value, UserType user_type) async {
     if (value == null || value.isEmpty) {
       return null;
     }
@@ -56,7 +56,7 @@ class FieldValidator {
         break;
     }
     bool exists =
-        await databaseRouter.fieldExists('Groups', fieldToCheck, value);
+        await DatabaseRouter().fieldExists('Groups', fieldToCheck, value);
     if (!exists) {
       return "Could not find organization. Please re-enter or leave blank";
     } else {

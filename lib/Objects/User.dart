@@ -59,16 +59,15 @@ class TheraportalUser {
 
   //factory constructor to create a User object from a map
   factory TheraportalUser.fromMap(Map<String, dynamic> user_map) {
-    var user_type = user_map['user_type'];
-    user_type = (user_type is String) ? userTypeMap[user_type] : user_type;
-    user_map['org_reference_code'];
+    dynamic userType = user_map['user_type'];
+    userType = (userType is String) ? userTypeMap[userType] : userType;
     return TheraportalUser(
         id: user_map['userId'],
         email: user_map['email'],
         firstName: user_map['first_name'],
         lastName: user_map['last_name'],
         groupId: user_map['org_reference_code'],
-        userType: user_type,
+        userType: userType,
         dateCreated:
             user_map['date_created'], //adjust according to Firestore timestamp
         referenceCode: user_map['user_reference_code'],
@@ -79,14 +78,21 @@ class TheraportalUser {
   //method to convert User object to a map
   Map<String, dynamic> toMap() {
     return {
-      'id': id,
+      'userId': id,
       'email': email,
       'first_name': firstName,
       'last_name': lastName,
-      'group_id': groupId,
+      'org_reference_code': groupId,
       'user_type': userType.toString(),
       'date_created': dateCreated, //adjust according to Firestore timestamp
       'user_reference_code': referenceCode,
+      'date_of_birth': dateOfBirth,
+      'therapist_type': therapistType
     };
+  }
+
+  @override
+  String toString() {
+    return 'TheraportalUser(id: $id, email: $email, firstName: $firstName, lastName: $lastName, groupId: $groupId, userType: $userType, dateCreated: $dateCreated, dateOfBirth: $dateOfBirth, referenceCode: $referenceCode, therapistType: $therapistType)';
   }
 }
