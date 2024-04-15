@@ -63,7 +63,7 @@ class _BottomChatBarState extends State<BottomChatBar> {
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Must be 40 characters or less'),
+            content: Text('Must be 80 characters or less'),
           ),
         );
       }

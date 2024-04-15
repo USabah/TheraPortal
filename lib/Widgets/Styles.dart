@@ -18,6 +18,10 @@ var themeStyle = ThemeData(
         const MaterialBannerThemeData(backgroundColor: Styles.orangeYellowish),
     appBarTheme: const AppBarTheme(backgroundColor: Styles.orangeYellowish),
     fontFamily: 'Kanit',
+    textTheme: const TextTheme(
+        bodySmall: TextStyle(color: Colors.white),
+        bodyMedium: TextStyle(color: Colors.white),
+        bodyLarge: TextStyle(color: Colors.white)),
     inputDecorationTheme: const InputDecorationTheme(
         labelStyle: TextStyle(
       color: Styles.beige,
