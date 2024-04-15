@@ -32,7 +32,7 @@ class _AppState extends State<App> {
     return StreamBuilder(
       stream: FirebaseAuth.instance.authStateChanges(),
       builder: (context, snapshot) {
-        // AuthRouter().logout();
+        // AuthRouter.logout();
         if (snapshot.hasError) {
           // Error occurred during initialization
           return Scaffold(

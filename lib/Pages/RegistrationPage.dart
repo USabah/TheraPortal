@@ -369,7 +369,10 @@ class _LargeScreenState extends State<LargeScreen> {
             onPressed: () {
               Navigator.of(context)
                 ..popUntil((route) => !Navigator.of(context).canPop())
-                ..push(MaterialPageRoute(builder: (context) => SignInPage()));
+                ..push(MaterialPageRoute(
+                    builder: (context) => SignInPage(
+                          sentFromRegistrationPopup: true,
+                        )));
             },
             btnText: "Sign in");
       }

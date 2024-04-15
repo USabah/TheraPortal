@@ -5,18 +5,22 @@ import 'package:theraportal/Utilities/FieldValidator.dart';
 import 'package:theraportal/Widgets/Widgets.dart';
 
 class Body extends StatelessWidget {
-  const Body({super.key});
+  final bool verificationEmailSent;
+  const Body({super.key, required this.verificationEmailSent});
 
   @override
   Widget build(BuildContext context) {
-    return const ResponsiveWidget(
-      largeScreen: LargeScreen(),
+    return ResponsiveWidget(
+      largeScreen: LargeScreen(
+        verificationEmailSent: verificationEmailSent,
+      ),
     );
   }
 }
 
 class LargeScreen extends StatefulWidget {
-  const LargeScreen({super.key});
+  final bool verificationEmailSent;
+  const LargeScreen({super.key, required this.verificationEmailSent});
 
   @override
   _LargeScreenPageState createState() => _LargeScreenPageState();
@@ -28,11 +32,16 @@ class _LargeScreenPageState extends State<LargeScreen> {
   final TextEditingController _passwordController = TextEditingController();
   bool isLoading = false;
   bool hidePassword = true;
-  bool verificationEmailSent = false;
-
+  late bool verificationEmailSent;
   String? _emailError;
   String? _passwordError;
   String? _errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    verificationEmailSent = widget.verificationEmailSent;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -191,13 +200,20 @@ class _LargeScreenPageState extends State<LargeScreen> {
 class SignInPage extends StatelessWidget {
   static const Key pageKey = Key("Sign In Page");
 
-  const SignInPage({super.key});
+  bool? sentFromRegistrationPopup;
+
+  SignInPage({
+    super.key,
+    this.sentFromRegistrationPopup,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
+    bool verificationEmailSent =
+        (sentFromRegistrationPopup == true) ? true : false;
+    return Scaffold(
       key: pageKey,
-      body: Body(),
+      body: Body(verificationEmailSent: verificationEmailSent),
     );
   }
 }
