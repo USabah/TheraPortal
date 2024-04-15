@@ -223,7 +223,7 @@ class _LargeScreenState extends State<LargeScreen> {
                           onPressed: _submitForm,
                           style: ButtonStyle(
                             backgroundColor: MaterialStateProperty.all<Color?>(
-                              Styles.orangeYellowish,
+                              Styles.beige,
                             ),
                             shape: MaterialStateProperty.all<
                                 RoundedRectangleBorder>(

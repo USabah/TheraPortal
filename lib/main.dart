@@ -1,6 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:theraportal/Pages/HomePage.dart';
+import 'package:theraportal/Pages/NavigationPage.dart';
 import 'package:theraportal/Pages/LandingPage.dart';
 import 'package:theraportal/Utilities/AuthRouter.dart';
 import 'package:theraportal/Widgets/Widgets.dart';
@@ -55,7 +55,7 @@ class _AppState extends State<App> {
               title: "TheraPortal",
               debugShowCheckedModeBanner: false,
               theme: themeStyle,
-              home: HomePage(),
+              home: NavigationPage(),
             );
           } else {
             return MaterialApp(

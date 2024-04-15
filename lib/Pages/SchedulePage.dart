@@ -17,30 +17,18 @@ class LargeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Column(
-        children: [
-          Center(
-            child: Text("Home Page"),
-          ),
-          PatientProfileCard(
-              firstName: "Bob",
-              lastName: "The Builder",
-              dateOfBirth: "11-01-02"),
-          TherapistProfileCard(
-              firstName: "Danny",
-              lastName: "Phantom",
-              therapistType: "Physical Therapist")
-        ],
+    return const Scaffold(
+      body: Center(
+        child: Text("Schedule Page"),
       ),
     );
   }
 }
 
-class HomePage extends StatelessWidget {
-  static const Key pageKey = Key("Home Page");
+class SchedulePage extends StatelessWidget {
+  static const Key pageKey = Key("Schedule Page");
 
-  const HomePage({super.key});
+  const SchedulePage({super.key});
 
   @override
   Widget build(BuildContext context) {

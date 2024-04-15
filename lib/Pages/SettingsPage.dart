@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:theraportal/Utilities/AuthRouter.dart';
 import 'package:theraportal/Widgets/Widgets.dart';
 
 class Body extends StatelessWidget {
@@ -17,30 +18,21 @@ class LargeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Column(
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Center(
-            child: Text("Home Page"),
-          ),
-          PatientProfileCard(
-              firstName: "Bob",
-              lastName: "The Builder",
-              dateOfBirth: "11-01-02"),
-          TherapistProfileCard(
-              firstName: "Danny",
-              lastName: "Phantom",
-              therapistType: "Physical Therapist")
+          const Text("Settings Page"),
+          ElevatedButton(
+              onPressed: () => AuthRouter.logout(), child: Text("logout"))
         ],
       ),
     );
   }
 }
 
-class HomePage extends StatelessWidget {
-  static const Key pageKey = Key("Home Page");
-
-  const HomePage({super.key});
+class SettingsPage extends StatelessWidget {
+  static const Key pageKey = Key("Settings Page");
 
   @override
   Widget build(BuildContext context) {

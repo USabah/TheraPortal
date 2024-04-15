@@ -153,7 +153,7 @@ class _LargeScreenState extends State<LargeScreen> {
                             style: ButtonStyle(
                               backgroundColor:
                                   MaterialStateProperty.all<Color?>(
-                                Styles.orangeYellowish,
+                                Styles.beige,
                               ),
                               shape: MaterialStateProperty.all<
                                       RoundedRectangleBorder>(

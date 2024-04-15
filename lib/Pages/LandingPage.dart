@@ -41,7 +41,7 @@ class LargeScreen extends StatelessWidget {
                         MaterialPageRoute(builder: (context) => SignInPage()));
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Styles.orangeYellowish,
+                    backgroundColor: Styles.beige,
                   ),
                   child: const Text(
                     "Login",
@@ -59,7 +59,7 @@ class LargeScreen extends StatelessWidget {
                       builder: (context) => AccountTypePage()));
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Styles.orangeYellowish,
+                  backgroundColor: Styles.beige,
                 ),
                 child: const Text(
                   "Register",

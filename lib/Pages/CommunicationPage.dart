@@ -2,7 +2,6 @@ import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:theraportal/Utilities/AuthRouter.dart';
 import 'package:theraportal/Utilities/FirestoreRouter.dart';
 import 'package:theraportal/Utilities/GoogleDriveRouter.dart';
 import 'package:theraportal/Widgets/Widgets.dart';

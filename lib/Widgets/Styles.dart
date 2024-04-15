@@ -8,15 +8,17 @@ class Styles {
   static const Color darkGrey = Color(0xFF333333);
   static const Color orangeYellowish = Color(0xFFFFA500);
   static const Color beige = Color.fromARGB(255, 253, 180, 121);
+  static const Color babyBlue = Color.fromARGB(214, 104, 204, 244);
 }
 
 var themeStyle = ThemeData(
     primarySwatch: Colors.orange,
     scaffoldBackgroundColor: Styles.darkGrey,
     visualDensity: VisualDensity.adaptivePlatformDensity,
-    bannerTheme:
-        const MaterialBannerThemeData(backgroundColor: Styles.orangeYellowish),
-    appBarTheme: const AppBarTheme(backgroundColor: Styles.orangeYellowish),
+    bannerTheme: const MaterialBannerThemeData(backgroundColor: Styles.beige),
+    appBarTheme: const AppBarTheme(backgroundColor: Styles.beige),
+    bottomNavigationBarTheme:
+        const BottomNavigationBarThemeData(backgroundColor: Styles.beige),
     fontFamily: 'Kanit',
     textTheme: const TextTheme(
         bodySmall: TextStyle(color: Colors.white),
@@ -66,7 +68,7 @@ const round = BorderRadius.all(
 const boxShadow = BoxShadow(
   spreadRadius: 0.0,
   blurRadius: 0.0,
-  color: Styles.orangeYellowish,
+  color: Styles.beige,
   offset: Offset.zero,
 );
 
@@ -84,7 +86,7 @@ const inputText = TextStyle(
 );
 
 const logoText = TextStyle(
-    color: Styles.orangeYellowish,
+    color: Styles.beige,
     fontSize: 60, // Adjust the font size as needed
     fontWeight: FontWeight.bold,
     fontStyle: FontStyle.italic,
