@@ -24,7 +24,8 @@ class LargeScreen extends StatelessWidget {
         children: [
           const Text("Settings Page"),
           ElevatedButton(
-              onPressed: () => AuthRouter.logout(), child: Text("logout"))
+              onPressed: () => AuthRouter.logout(), child: Text("logout")),
+          ElevatedButton(onPressed: () {}, child: Text("test function")),
         ],
       ),
     );

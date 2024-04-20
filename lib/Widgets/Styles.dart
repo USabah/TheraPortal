@@ -5,6 +5,7 @@ class Styles {
   static const Color dark = Color(0xFF0d0036);
   static const Color white = Color(0xFFFCFDFD);
   static const Color grey = Color.fromARGB(255, 65, 67, 70);
+  static const Color lightGrey = Color.fromARGB(255, 213, 208, 208);
   static const Color darkGrey = Color(0xFF333333);
   static const Color orangeYellowish = Color(0xFFFFA500);
   static const Color beige = Color.fromARGB(255, 253, 180, 121);

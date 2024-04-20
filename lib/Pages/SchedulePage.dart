@@ -1,19 +1,36 @@
 import 'package:flutter/material.dart';
+import 'package:theraportal/Objects/User.dart';
 import 'package:theraportal/Widgets/Widgets.dart';
 
 class Body extends StatelessWidget {
-  const Body({super.key});
+  final TheraportalUser currentUser;
+  const Body({super.key, required this.currentUser});
 
   @override
   Widget build(BuildContext context) {
-    return const ResponsiveWidget(
-      largeScreen: LargeScreen(),
+    return ResponsiveWidget(
+      largeScreen: LargeScreen(
+        currentUser: currentUser,
+      ),
     );
   }
 }
 
-class LargeScreen extends StatelessWidget {
-  const LargeScreen({super.key});
+class LargeScreen extends StatefulWidget {
+  final TheraportalUser currentUser;
+  const LargeScreen({super.key, required this.currentUser});
+
+  @override
+  State<LargeScreen> createState() => _LargeScreenState();
+}
+
+class _LargeScreenState extends State<LargeScreen> {
+  late TheraportalUser currentUser;
+  @override
+  void initState() {
+    super.initState();
+    currentUser = widget.currentUser;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,14 +44,17 @@ class LargeScreen extends StatelessWidget {
 
 class SchedulePage extends StatelessWidget {
   static const Key pageKey = Key("Schedule Page");
+  final TheraportalUser currentUser;
 
-  const SchedulePage({super.key});
+  const SchedulePage({super.key, required this.currentUser});
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
+    return Scaffold(
       key: pageKey,
-      body: Body(),
+      body: Body(
+        currentUser: currentUser,
+      ),
     );
   }
 }

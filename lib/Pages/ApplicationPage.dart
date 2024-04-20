@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:theraportal/Objects/User.dart';
 import 'package:theraportal/Pages/HomePage.dart';
 import 'package:theraportal/Pages/MessagesPage.dart';
 import 'package:theraportal/Pages/SchedulePage.dart';
 import 'package:theraportal/Pages/SettingsPage.dart';
+import 'package:theraportal/Utilities/AuthRouter.dart';
+import 'package:theraportal/Utilities/DatabaseRouter.dart';
 import 'package:theraportal/Widgets/Widgets.dart';
 
 class Body extends StatelessWidget {
@@ -26,11 +29,47 @@ class LargeScreen extends StatefulWidget {
 class _LargeScreenState extends State<LargeScreen> {
   late PageController _pageController;
   int _currentIndex = 0;
+  DatabaseRouter databaseRouter = DatabaseRouter();
+  late TheraportalUser currentUser;
+  bool _isLoading = true;
+  List<String> headerPageTexts = ['Home', 'Schedule', 'Messages'];
+  List<Widget Function()> pages = [];
 
   @override
   void initState() {
     super.initState();
     _pageController = PageController(initialPage: _currentIndex);
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    try {
+      final user = await DatabaseRouter().getUser(AuthRouter.getUserUID());
+      setState(() {
+        currentUser = user;
+        _isLoading = false;
+        _initPages();
+      });
+    } catch (e) {
+      print('Error loading user data: $e');
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  _initPages() {
+    pages = [
+      () => HomePage(
+            currentUser: currentUser,
+          ),
+      () => SchedulePage(
+            currentUser: currentUser,
+          ),
+      () => MessagesPage(
+            currentUser: currentUser,
+          ),
+    ];
   }
 
   @override
@@ -41,9 +80,31 @@ class _LargeScreenState extends State<LargeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      //display a circular progress indicator while loading user data
+      return Scaffold(
+        appBar: AppBar(
+          title: Text(headerPageTexts[_currentIndex]),
+          actions: [
+            IconButton(
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (context) => SettingsPage()),
+                );
+              },
+              icon: const Icon(Icons.settings),
+            ),
+          ],
+        ),
+        body: const Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('TheraPortal'),
+        title: Text(headerPageTexts[_currentIndex]),
         actions: [
           IconButton(
             onPressed: () {
@@ -54,13 +115,16 @@ class _LargeScreenState extends State<LargeScreen> {
           ),
         ],
       ),
-      body: PageView(
+      body: PageView.builder(
         controller: _pageController,
-        children: const [HomePage(), SchedulePage(), MessagesPage()],
+        itemCount: pages.length,
         onPageChanged: (index) {
           setState(() {
             _currentIndex = index;
           });
+        },
+        itemBuilder: (context, index) {
+          return pages[index]();
         },
       ),
       bottomNavigationBar: BottomNavigationBar(
@@ -91,8 +155,8 @@ class _LargeScreenState extends State<LargeScreen> {
   }
 }
 
-class NavigationPage extends StatelessWidget {
-  static const Key pageKey = Key("Navigation Page");
+class ApplicationPage extends StatelessWidget {
+  static const Key pageKey = Key("Application Page");
 
   @override
   Widget build(BuildContext context) {

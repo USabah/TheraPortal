@@ -288,17 +288,23 @@ class _LargeScreenState extends State<LargeScreen> {
     int codeLength = 6;
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     final random = Random();
-    bool uniqueCode = false;
     String code = '';
-    while (!uniqueCode) {
-      String code = String.fromCharCodes(Iterable.generate(
-          codeLength, (_) => chars.codeUnitAt(random.nextInt(chars.length))));
-      //if code does not exist already
-      if (!(await databaseRouter.fieldExists(
-          'Users', 'reference_code', code))) {
-        uniqueCode = true;
+
+    try {
+      while (true) {
+        code = String.fromCharCodes(Iterable.generate(
+            codeLength, (_) => chars.codeUnitAt(random.nextInt(chars.length))));
+
+        if (!(await databaseRouter.fieldExists(
+            'Users', 'user_reference_code', code))) {
+          break; //unique code found
+        }
       }
+    } catch (e) {
+      print('Error generating reference code: $e');
+      throw Exception('Failed to generate reference code');
     }
+
     return code;
   }
 
@@ -347,13 +353,19 @@ class _LargeScreenState extends State<LargeScreen> {
       } else {
         //create database entry for new user
         //first generate a user_reference_code
+        print("here1");
         userMap["user_reference_code"] = await generateReferenceCode();
+        print("here2");
         String userId = res.user.uid;
+        print("here3");
         userMap["userId"] = userId;
+        print("here4");
         userMap['date_created'] = Timestamp.now();
+        print("here5");
         TheraportalUser currentUser = TheraportalUser.fromMap(userMap);
+        print("here6");
         databaseRouter.addUser(currentUser);
-
+        print("here7");
         //send verification email
         await AuthRouter.login(userMap["email"], userMap["password"]);
         await AuthRouter.sendVerificationEmail();
