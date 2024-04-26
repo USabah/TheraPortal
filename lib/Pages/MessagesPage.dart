@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:theraportal/Objects/User.dart';
-import 'package:theraportal/Pages/ExerciseTest.dart';
+import 'package:theraportal/Utilities/DatabaseRouter.dart';
 import 'package:theraportal/Widgets/Widgets.dart';
 
 class Body extends StatelessWidget {
@@ -27,6 +27,7 @@ class LargeScreen extends StatefulWidget {
 
 class _LargeScreenState extends State<LargeScreen> {
   late TheraportalUser currentUser;
+  DatabaseRouter databaseRouter = DatabaseRouter();
   @override
   void initState() {
     super.initState();
@@ -36,13 +37,42 @@ class _LargeScreenState extends State<LargeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: ElevatedButton(
-            onPressed: () {
-              Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context) => ExerciseTest()));
-            },
-            child: const Text("Messages Page")),
+      body: FutureBuilder<List<Map<String, dynamic>>>(
+        future: databaseRouter.geUserMessagesInfo(
+            currentUser.id, currentUser.userType),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          } else if (snapshot.hasError) {
+            return const Center(
+              child: Text('Error loading messages.'),
+            );
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return const Center(
+              child: Text(
+                  'There are no users currently associated with your account.'),
+            );
+          } else {
+            //build the scrollable list of MessagesCard widgets
+            return ListView.builder(
+              itemCount: snapshot.data!.length,
+              itemBuilder: (context, index) {
+                final messageInfo = snapshot.data![index];
+                return MessagesCard(
+                  firstName: messageInfo['firstName'],
+                  lastName: messageInfo['lastName'],
+                  userType: messageInfo['userType'],
+                  lastMessageContent: messageInfo['messageContent'],
+                  sentByCurrentUser: messageInfo['sentByCurrentUser'],
+                  withUserId: messageInfo['withUserId'],
+                  messageTimestamp: messageInfo['messageTimestamp'],
+                );
+              },
+            );
+          }
+        },
       ),
     );
   }

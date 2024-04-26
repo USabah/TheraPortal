@@ -3,6 +3,7 @@ export 'Alert.dart';
 export 'AuthPopup.dart';
 export 'BottomChatBar.dart';
 export 'ChatContainer.dart';
+export "MessageCard.dart";
 export 'PatientProfileCard.dart';
 export 'ResponsiveWidget.dart';
 export 'ReceivedMessage.dart';

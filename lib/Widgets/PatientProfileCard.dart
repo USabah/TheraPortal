@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:theraportal/Pages/CommunicationPage.dart';
 import 'package:theraportal/Widgets/Widgets.dart';
 
 class PatientProfileCard extends StatelessWidget {
@@ -6,12 +8,15 @@ class PatientProfileCard extends StatelessWidget {
   final String lastName;
   final String? organization;
   final DateTime? nextScheduledSession;
-  final String dateOfBirth;
+  final DateTime dateOfBirth;
+  final String patientId;
 
-  PatientProfileCard({
+  const PatientProfileCard({
+    super.key,
     required this.firstName,
     required this.lastName,
     required this.dateOfBirth,
+    required this.patientId,
     this.organization,
     this.nextScheduledSession,
   });
@@ -30,10 +35,11 @@ class PatientProfileCard extends StatelessWidget {
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Date of Birth: $dateOfBirth'),
+            Text(
+                'Date of Birth: ${DateFormat("MM-dd-yyyy").format(dateOfBirth)}'),
             Text('Organization: ${organization ?? "None"}'),
             Text(
-              'Next Scheduled Session: ${nextScheduledSession != null ? nextScheduledSession!.toString() : "None"}',
+              'Next Session: ${nextScheduledSession != null ? DateFormat('EEEE \'at\' h:mma \'(\'M/d/yy\')\'').format(nextScheduledSession!) : "Not Scheduled"}',
             ),
           ],
         ),
@@ -42,9 +48,10 @@ class PatientProfileCard extends StatelessWidget {
           color: Styles.lightGrey,
           onSelected: (String value) {
             switch (value) {
-              case 'Send Message':
-                print('Send Message selected');
-                // Add logic to handle sending message
+              case 'View Messages':
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => CommunicationPage(
+                        withUserId: patientId, name: '$firstName $lastName')));
                 break;
               case 'View Assigned Exercises':
                 print('View Assigned Exercises selected');
@@ -58,8 +65,8 @@ class PatientProfileCard extends StatelessWidget {
           },
           itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
             const PopupMenuItem<String>(
-              value: 'Send Message',
-              child: Text('Send Message'),
+              value: 'View Messages',
+              child: Text('View Messages'),
             ),
             const PopupMenuItem<String>(
               value: 'View Assigned Exercises',

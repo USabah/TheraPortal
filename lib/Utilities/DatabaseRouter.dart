@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:theraportal/Objects/User.dart';
 
@@ -37,8 +39,7 @@ class DatabaseRouter {
   //check if a field exists
   Future<bool> fieldExists(
       String collectionName, String fieldName, dynamic fieldValue) async {
-    final QuerySnapshot<Map<String, dynamic>> result = await FirebaseFirestore
-        .instance
+    final QuerySnapshot<Map<String, dynamic>> result = await _firestore
         .collection(collectionName)
         .where(fieldName, isEqualTo: fieldValue)
         .limit(
@@ -88,7 +89,7 @@ class DatabaseRouter {
   }
 
   Future<String?> _getGroupName(String? groupIdString) async {
-    if (groupIdString == null) return null;
+    if (groupIdString == null || groupIdString == "") return null;
     DocumentSnapshot groupDoc =
         await _firestore.collection('Groups').doc(groupIdString).get();
 
@@ -126,6 +127,46 @@ class DatabaseRouter {
     return null;
   }
 
+  Future<List<Map<String, dynamic>>> getPatientCardInfo(
+      String therapistUserId) async {
+    List<Map<String, dynamic>> patients = [];
+
+    try {
+      List<String> patientUserIds =
+          await _getPatientIdsForTherapist(therapistUserId);
+      for (String patientUserId in patientUserIds) {
+        TheraportalUser patient = await getUser(patientUserId);
+        String? groupName = await _getGroupName(patient.groupId);
+        DateTime? nextScheduledSession =
+            await _getNextScheduledSession(patientUserId, therapistUserId);
+
+        patients.add({
+          "patient": patient,
+          "group_name": groupName,
+          "next_session": nextScheduledSession
+        });
+      }
+      return patients;
+    } catch (e) {
+      print('Error retrieving patients: $e');
+      return [];
+    }
+  }
+
+  Future<List<String>> _getPatientIdsForTherapist(
+      String therapistUserId) async {
+    QuerySnapshot assignmentsQuery = await _firestore
+        .collection('Assignments')
+        .where('therapist_id', isEqualTo: therapistUserId)
+        .get();
+
+    List<String> patientIds = assignmentsQuery.docs
+        .map((assignment) => assignment['patient_id'] as String)
+        .toList();
+
+    return patientIds;
+  }
+
   Future<void> createAssignment(String patientId, String therapistId) async {
     try {
       DocumentReference assignmentRef =
@@ -136,12 +177,211 @@ class DatabaseRouter {
         'therapist_id': therapistId,
       });
 
-      //create empty subcollections
-      await assignmentRef.collection('ExerciseAssignments').doc().set({});
-      await assignmentRef.collection('ScheduledSessions').doc().set({});
+      //create empty subcollections under the assignment document
+      // await assignmentRef.collection('ExerciseAssignments').add({});
+      // await assignmentRef.collection('ScheduledSessions').add({});
     } catch (e) {
       print('Error adding assignment: $e');
-      throw e; // Propagate the error if needed
+      throw e;
+    }
+  }
+
+  Future<Stream<QuerySnapshot<Object?>>> fetchMessageStream(
+      String user1Id, String user2Id) async {
+    Stream<QuerySnapshot> stream = const Stream.empty();
+
+    final messagesReference = await getMessagesReference(user1Id, user2Id);
+
+    // Return a stream of the 'messages' subcollection of that document
+    stream = messagesReference
+        .orderBy('timestamp', descending: false)
+        .limit(15)
+        .snapshots();
+
+    return stream;
+
+    // testFireStore(user1Id, user2Id);
+  }
+
+  Future<CollectionReference<Map<String, dynamic>>> getMessagesReference(
+      String user1Id, String user2Id) async {
+    var concat_ids = _concatenateIds(user1Id, user2Id);
+    var chatReference = await _firestore
+        .collection('Communications')
+        .where('concatenated_ids', isEqualTo: concat_ids)
+        .snapshots()
+        .first;
+    DocumentReference docRef = chatReference.docs.first.reference;
+    return docRef.collection('Messages');
+  }
+
+  //helper function to concatenate user IDs into a single string
+  String _concatenateIds(String user1Id, String user2Id) {
+    List<String> sortedIds = [user1Id, user2Id]..sort();
+    return sortedIds.join('_');
+  }
+
+  Future<List<Map<String, dynamic>>> geUserMessagesInfo(
+      String userId, UserType userType) async {
+    List<Map<String, dynamic>> messageInfoList = [];
+    List<String> messageIdsList = [];
+    try {
+      if (userType == UserType.Patient) {
+        messageIdsList = await _getTherapistIdsForPatient(userId);
+      } else if (userType == UserType.Therapist) {
+        messageIdsList = await _getMessageIdsForTherapist(userId);
+      }
+      for (String messageId in messageIdsList) {
+        Map<String, dynamic> messageInfo =
+            await _getMessageInfo(userId, messageId);
+        messageInfoList.add(messageInfo);
+      }
+      return messageInfoList;
+    } catch (e) {
+      print('Error fetching user messages: $e');
+      return []; // Return empty list on error
+    }
+  }
+
+  // Future<Stream<List<Map<String, dynamic>>>> userMessagesStream(
+  //     String userId, UserType userType) async {
+  //   StreamController<List<Map<String, dynamic>>> controller =
+  //       StreamController<List<Map<String, dynamic>>>();
+
+  //   try {
+  //     List<String> messageIdsList = [];
+  //     if (userType == UserType.Patient) {
+  //       messageIdsList = await _getTherapistIdsForPatient(userId);
+  //     } else if (userType == UserType.Therapist) {
+  //       messageIdsList = await _getMessageIdsForTherapist(userId);
+  //     }
+
+  //     List<Map<String, dynamic>> messageInfoList = [];
+  //     for (String messageId in messageIdsList) {
+  //       Map<String, dynamic> messageInfo =
+  //           await _getMessageInfo(userId, messageId);
+  //       messageInfoList.add(messageInfo);
+  //     }
+
+  //     // Emit the initial list of message info
+  //     controller.add(messageInfoList);
+
+  //     // Listen for changes in the Messages subcollection
+  //     _firestore
+  //         .collection('Communications')
+  //         .where('user1_id', isEqualTo: userId)
+  //         .snapshots()
+  //         .listen((snapshot) async {
+  //       List<Map<String, dynamic>> updatedMessageInfoList = [];
+  //       for (String messageId in messageIdsList) {
+  //         Map<String, dynamic> messageInfo =
+  //             await _getMessageInfo(userId, messageId);
+  //         updatedMessageInfoList.add(messageInfo);
+  //       }
+  //       controller.add(updatedMessageInfoList);
+  //     });
+
+  //     return controller.stream;
+  //   } catch (e) {
+  //     controller.addError('Error fetching user messages: $e');
+  //     return controller.stream; // Return stream with error message
+  //   }
+  // }
+
+  Future<List<String>> _getMessageIdsForTherapist(String userId) async {
+    List<String> patientIds = await _getPatientIdsForTherapist(userId);
+    Set<String> therapistMessageIds = <String>{};
+
+    //get therapistIds for each patient
+    for (String patientId in patientIds) {
+      List<String> therapistIds = await _getTherapistIdsForPatient(patientId);
+      therapistMessageIds.addAll(therapistIds);
+    }
+    therapistMessageIds.remove(userId); //exclude current therapist (self)
+
+    //merge patientIds and therapistIds into a single list
+    List<String> messageIdsList = List.from(patientIds)
+      ..addAll(therapistMessageIds);
+    return messageIdsList;
+  }
+
+  Future<Map<String, dynamic>> _getMessageInfo(
+      String currentUserId, String withUserId) async {
+    String concatenatedIds = _concatenateIds(currentUserId, withUserId);
+    TheraportalUser withUser = await getUser(withUserId);
+    try {
+      //check if a communication document exists with the specified concatenated_ids
+      QuerySnapshot communicationQuery = await _firestore
+          .collection('Communications')
+          .where('concatenated_ids', isEqualTo: concatenatedIds)
+          .limit(1)
+          .get();
+
+      String? messageContent;
+      String? senderId;
+      bool sentByCurrentUser = false;
+      DateTime? messageTimestamp;
+
+      if (communicationQuery.docs.isNotEmpty) {
+        DocumentSnapshot communicationDoc = communicationQuery.docs.first;
+        //get the most recent message
+        QuerySnapshot messagesQuery = await communicationDoc.reference
+            .collection('Messages')
+            .orderBy('timestamp', descending: true)
+            .limit(1)
+            .get();
+
+        if (messagesQuery.docs.isNotEmpty) {
+          DocumentSnapshot messageDoc = messagesQuery.docs.first;
+          messageContent = messageDoc['message_content'] as String?;
+          senderId = messageDoc['sender_id'] as String?;
+          Timestamp? timestamp = messageDoc['timestamp'] as Timestamp?;
+          messageTimestamp = timestamp?.toDate();
+        }
+      } else {
+        //communication document does not exist, create a new one
+        await _createCommunicationDocument(
+            concatenatedIds, currentUserId, withUserId);
+      }
+      sentByCurrentUser = (senderId == currentUserId);
+      return {
+        'messageContent': messageContent,
+        'sentByCurrentUser': sentByCurrentUser,
+        'userType': withUser.userType,
+        'firstName': withUser.firstName,
+        'lastName': withUser.lastName,
+        'withUserId': withUserId,
+        'messageTimestamp': messageTimestamp
+      };
+    } catch (e) {
+      print('Error retrieving message info: $e');
+      return {
+        'messageContent': null,
+        'sentByCurrentUser': null,
+        'userType': null,
+        'firstName': null,
+        'lastName': null,
+        'withUserId': null,
+        'messageTimestamp': null
+      };
+    }
+  }
+
+  //helper to create a communication document
+  Future<void> _createCommunicationDocument(
+      String concatenatedIds, String user1Id, String user2Id) async {
+    try {
+      await _firestore.collection('Communications').doc(concatenatedIds).set({
+        'user1_id': user1Id,
+        'user2_id': user2Id,
+        'concatenated_ids': concatenatedIds,
+      });
+      CollectionReference _ = _firestore
+          .collection('Communications')
+          .doc(concatenatedIds)
+          .collection('Messages');
+    } catch (e) {
+      print('Error creating communication document: $e');
     }
   }
 }

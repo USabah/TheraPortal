@@ -401,9 +401,9 @@ class RegistrationPage extends StatelessWidget {
   final Map<String, dynamic> userMap;
 
   const RegistrationPage({
-    Key? key,
+    super.key,
     required this.userMap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

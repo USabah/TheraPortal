@@ -1,21 +1,29 @@
 import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:theraportal/Utilities/FirestoreRouter.dart';
+import 'package:theraportal/Utilities/AuthRouter.dart';
+import 'package:theraportal/Utilities/DatabaseRouter.dart';
 import 'package:theraportal/Utilities/GoogleDriveRouter.dart';
 import 'package:theraportal/Widgets/Widgets.dart';
 
 class Body extends StatelessWidget {
+  final String withUserId;
+  const Body({super.key, required this.withUserId});
   @override
   Widget build(BuildContext context) {
     return ResponsiveWidget(
-      largeScreen: LargeScreen(),
+      largeScreen: LargeScreen(
+        withUserId: withUserId,
+      ),
     );
   }
 }
 
 class LargeScreen extends StatefulWidget {
+  final String withUserId;
+
+  const LargeScreen({super.key, required this.withUserId});
+
   @override
   State<LargeScreen> createState() => _LargeScreenState();
 }
@@ -26,45 +34,33 @@ class _LargeScreenState extends State<LargeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    double width = MediaQuery.of(context).size.width;
     return Container(
       padding: const EdgeInsets.all(4.0),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         mainAxisSize: MainAxisSize.max,
-        children: [ChatContainer(), const BottomChatBar()],
+        children: [
+          ChatContainer(withUserId: super.widget.withUserId),
+          BottomChatBar(
+            withUserId: super.widget.withUserId,
+          )
+        ],
       ),
-    );
-  }
-}
-
-class CommunicationPage extends StatelessWidget {
-  static const Key pageKey = Key("Communication Page");
-
-  @override
-  Widget build(BuildContext context) {
-    const name = "NAME HERE";
-    return Scaffold(
-      appBar: AppBar(
-        // Define your banner widget here
-        title: const Text('Chat with $name'),
-      ),
-      key: pageKey,
-      body: Body(),
     );
   }
 }
 
 class ChatContainer extends StatelessWidget {
-  final user = FirebaseAuth.instance.currentUser;
-  static const currentUserId = "1"; //user.uid;
-  static const otherUserId = "2"; //
+  String currentUserId = AuthRouter.getUserUID(); //user.uid;
+  final String withUserId;
+  DatabaseRouter databaseRouter = DatabaseRouter();
+
+  ChatContainer({super.key, required this.withUserId}); //
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<Stream<QuerySnapshot>>(
-        future:
-            FirestoreRouter().fetchMessageStream(currentUserId, otherUserId),
+        future: databaseRouter.fetchMessageStream(currentUserId, withUserId),
         builder: (BuildContext context,
             AsyncSnapshot<Stream<QuerySnapshot>> snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -82,6 +78,11 @@ class ChatContainer extends StatelessWidget {
                       ConnectionState.waiting) {
                     return const CircularProgressIndicator();
                   } else if (snapshot.hasData) {
+                    List<DocumentSnapshot> messages = snapshot.data!.docs;
+                    if (messages.isEmpty) {
+                      return Center(
+                          child: Text("No messages between users yet!"));
+                    }
                     return Flexible(
                         child: GestureDetector(
                       onTap: () {
@@ -108,10 +109,30 @@ class ChatContainer extends StatelessWidget {
                     ));
                     //no messages between users yet!
                   } else {
-                    return Text("NO data found");
+                    return const Text("NO data found");
                   }
                 });
           }
         });
+  }
+}
+
+class CommunicationPage extends StatelessWidget {
+  static const Key pageKey = Key("Communication Page");
+  final String name;
+  final String withUserId;
+  const CommunicationPage(
+      {super.key, required this.withUserId, required this.name});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        // Define your banner widget here
+        title: Text(name),
+      ),
+      key: pageKey,
+      body: Body(withUserId: withUserId),
+    );
   }
 }

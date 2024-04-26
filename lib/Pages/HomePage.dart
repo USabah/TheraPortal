@@ -41,14 +41,17 @@ class _LargeScreenState extends State<LargeScreen> {
   Future<void> loadMapData() async {
     if (currentUser.userType == UserType.Patient) {
       try {
-        List<Map<String, dynamic>> therapists =
-            await databaseRouter.getTherapistCardInfo(currentUser.id);
-        mapData = therapists;
+        mapData = await databaseRouter.getTherapistCardInfo(currentUser.id);
       } catch (e) {
         print('Error loading therapist data: $e');
       }
+    } else if (currentUser.userType == UserType.Therapist) {
+      try {
+        mapData = await databaseRouter.getPatientCardInfo(currentUser.id);
+      } catch (e) {
+        print('Error loading patient data: $e');
+      }
     }
-    //else if (currentUser.userType == UserType.Therapist){}
     setState(() {
       isLoading = false; // Set loading state to false on error
     });
@@ -61,31 +64,43 @@ class _LargeScreenState extends State<LargeScreen> {
           ? const Center(
               child: CircularProgressIndicator(),
             )
-          : Column(
-              children: [
-                if (currentUser.userType == UserType.Patient)
-                  ...mapData.map((therapistInfo) {
-                    TheraportalUser therapist = therapistInfo['therapist'];
-                    String? groupName = therapistInfo['group_name'];
-                    DateTime? nextSession = therapistInfo['next_session'];
+          : SingleChildScrollView(
+              child: Column(
+                children: [
+                  if (currentUser.userType == UserType.Patient)
+                    ...mapData.map((therapistInfo) {
+                      TheraportalUser therapist = therapistInfo['therapist'];
+                      String? groupName = therapistInfo['group_name'];
+                      DateTime? nextSession = therapistInfo['next_session'];
 
-                    return TherapistProfileCard(
-                      firstName: therapist.firstName,
-                      lastName: therapist.lastName,
-                      therapistType: therapist.therapistType.toString(),
-                      organization: groupName,
-                      nextScheduledSession: nextSession,
-                    );
-                  }).toList(),
-                PatientProfileCard(
-                    firstName: "Charles",
-                    lastName: "Barkley",
-                    dateOfBirth: "11-01-02"),
-                TherapistProfileCard(
-                    firstName: "Russell",
-                    lastName: "Westbrook",
-                    therapistType: "Physical Therapist")
-              ],
+                      return TherapistProfileCard(
+                        firstName: therapist.firstName,
+                        lastName: therapist.lastName,
+                        therapistType: therapist.therapistType.toString(),
+                        organization: groupName,
+                        nextScheduledSession:
+                            nextSession, //need to figure out how to format this
+                        therapistId: therapist.id,
+                      );
+                    })
+                  else if (currentUser.userType == UserType.Therapist)
+                    ...mapData.map((patientInfo) {
+                      TheraportalUser patient = patientInfo['patient'];
+                      String? groupName = patientInfo['group_name'];
+                      DateTime? nextSession = patientInfo['next_session'];
+
+                      return PatientProfileCard(
+                        firstName: patient.firstName,
+                        lastName: patient.lastName,
+                        dateOfBirth: patient.dateOfBirth!.toDate(),
+                        organization: groupName,
+                        nextScheduledSession:
+                            nextSession, //need to figure out how to format this
+                        patientId: patient.id,
+                      );
+                    }),
+                ],
+              ),
             ),
     );
   }

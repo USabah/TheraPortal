@@ -10,6 +10,7 @@ class Styles {
   static const Color orangeYellowish = Color(0xFFFFA500);
   static const Color beige = Color.fromARGB(255, 253, 180, 121);
   static const Color babyBlue = Color.fromARGB(214, 104, 204, 244);
+  static const Color darkGreyBlue = Color.fromARGB(255, 62, 77, 88);
 }
 
 var themeStyle = ThemeData(

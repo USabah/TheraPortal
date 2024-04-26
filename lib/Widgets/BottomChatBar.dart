@@ -1,11 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:theraportal/Utilities/FirestoreRouter.dart';
+import 'package:theraportal/Utilities/AuthRouter.dart';
+import 'package:theraportal/Utilities/DatabaseRouter.dart';
 import 'package:theraportal/Widgets/Widgets.dart';
 import 'package:flutter/material.dart';
 
 class BottomChatBar extends StatefulWidget {
-  const BottomChatBar({Key? key}) : super(key: key);
+  final String withUserId;
+  const BottomChatBar({super.key, required this.withUserId});
 
   @override
   _BottomChatBarState createState() => _BottomChatBarState();
@@ -15,26 +16,26 @@ class _BottomChatBarState extends State<BottomChatBar> {
   final textController = TextEditingController();
 
   @override
-  // Clean up on destroy
   void dispose() {
     textController.dispose();
     super.dispose();
   }
 
-  final user = FirebaseAuth.instance.currentUser;
-  static const currentUserId = "1"; //user.uid;
-  static const otherUserId = "2"; //
+  String currentUserId = AuthRouter.getUserUID();
+  late String otherUserId;
   late CollectionReference chatsRef;
+  static DatabaseRouter databaseRouter = DatabaseRouter();
 
   @override
   void initState() {
     super.initState();
+    otherUserId = super.widget.withUserId;
     init();
   }
 
   void init() async {
-    chatsRef = await FirestoreRouter()
-        .getMessagesReference(currentUserId, otherUserId);
+    chatsRef =
+        await databaseRouter.getMessagesReference(currentUserId, otherUserId);
   }
 
   Future sendMessage() async {
@@ -70,7 +71,7 @@ class _BottomChatBarState extends State<BottomChatBar> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text("Chat can't be empty"),
+          content: Text("Message can't be empty"),
         ),
       );
     }

@@ -1,18 +1,24 @@
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:theraportal/Utilities/AuthRouter.dart';
+import 'package:theraportal/Utilities/DatabaseRouter.dart';
 import 'package:theraportal/Utilities/GoogleDriveRouter.dart';
 import 'package:theraportal/Widgets/Widgets.dart';
 
 class Body extends StatelessWidget {
+  const Body({super.key});
+
   @override
   Widget build(BuildContext context) {
-    return ResponsiveWidget(
+    return const ResponsiveWidget(
       largeScreen: LargeScreen(),
     );
   }
 }
 
 class LargeScreen extends StatefulWidget {
+  const LargeScreen({super.key});
+
   @override
   State<LargeScreen> createState() => _LargeScreenState();
 }
@@ -23,17 +29,34 @@ class _LargeScreenState extends State<LargeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    double width = MediaQuery.of(context).size.width;
-    return const Center(child: Text("PIZZA"));
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Text("Settings Page"),
+          ElevatedButton(
+              onPressed: () => AuthRouter.logout(), child: Text("logout")),
+          ElevatedButton(
+              onPressed: () {
+                DatabaseRouter().createAssignment(
+                    "i7o4zwqxgaSd6aEj3x01m4kD31s2",
+                    "h2tD3YQD66XHEXp5Hy4pkGF2j4Z2");
+              },
+              child: Text("test function")),
+        ],
+      ),
+    );
   }
 }
 
 class TestingPage extends StatelessWidget {
   static const Key pageKey = Key("Testing Page");
 
+  const TestingPage({super.key});
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return const Scaffold(
       body: Body(),
     );
   }
