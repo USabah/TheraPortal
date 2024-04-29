@@ -384,4 +384,20 @@ class DatabaseRouter {
       print('Error creating communication document: $e');
     }
   }
+
+  Future<void> removeAssignment(String patientId, String therapistId) async {
+    try {
+      CollectionReference assignments =
+          FirebaseFirestore.instance.collection('Assignments');
+      QuerySnapshot querySnapshot = await assignments
+          .where('patient_id', isEqualTo: patientId)
+          .where('therapist_id', isEqualTo: therapistId)
+          .get();
+      querySnapshot.docs.forEach((doc) async {
+        await assignments.doc(doc.id).delete();
+      });
+    } catch (e) {
+      print('Error removing patient assignment: $e');
+    }
+  }
 }

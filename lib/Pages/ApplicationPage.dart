@@ -4,6 +4,7 @@ import 'package:theraportal/Pages/HomePage.dart';
 import 'package:theraportal/Pages/MessagesPage.dart';
 import 'package:theraportal/Pages/SchedulePage.dart';
 import 'package:theraportal/Pages/SettingsPage.dart';
+import 'package:theraportal/Pages/TestingPage.dart';
 import 'package:theraportal/Utilities/AuthRouter.dart';
 import 'package:theraportal/Utilities/DatabaseRouter.dart';
 import 'package:theraportal/Widgets/Widgets.dart';
@@ -34,6 +35,7 @@ class _LargeScreenState extends State<LargeScreen> {
   bool _isLoading = true;
   List<String> headerPageTexts = ['Home', 'Schedule', 'Messages'];
   List<Widget Function()> pages = [];
+  List<Map<String, dynamic>> userMapData = [];
 
   @override
   void initState() {
@@ -45,8 +47,9 @@ class _LargeScreenState extends State<LargeScreen> {
   Future<void> _loadUserData() async {
     try {
       final user = await DatabaseRouter().getUser(AuthRouter.getUserUID());
+      currentUser = user;
+      await loadMapData();
       setState(() {
-        currentUser = user;
         _isLoading = false;
         _initPages();
       });
@@ -58,10 +61,30 @@ class _LargeScreenState extends State<LargeScreen> {
     }
   }
 
+  Future<void> loadMapData() async {
+    if (currentUser.userType == UserType.Patient) {
+      try {
+        userMapData = await databaseRouter.getTherapistCardInfo(currentUser.id);
+      } catch (e) {
+        print('Error loading therapist data: $e');
+      }
+    } else if (currentUser.userType == UserType.Therapist) {
+      try {
+        userMapData = await databaseRouter.getPatientCardInfo(currentUser.id);
+      } catch (e) {
+        print('Error loading patient data: $e');
+      }
+    }
+    setState(() {
+      _isLoading = false; // Set loading state to false on error
+    });
+  }
+
   _initPages() {
     pages = [
       () => HomePage(
             currentUser: currentUser,
+            mapData: userMapData,
           ),
       () => SchedulePage(
             currentUser: currentUser,
@@ -88,9 +111,7 @@ class _LargeScreenState extends State<LargeScreen> {
           actions: [
             IconButton(
               onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context) => SettingsPage()),
-                );
+                //can't go to settings page until data is finished loading
               },
               icon: const Icon(Icons.settings),
             ),
@@ -107,9 +128,20 @@ class _LargeScreenState extends State<LargeScreen> {
         title: Text(headerPageTexts[_currentIndex]),
         actions: [
           IconButton(
-            onPressed: () {
-              Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context) => SettingsPage()));
+            onPressed: () async {
+              // Navigator.of(context)
+              //     .push(MaterialPageRoute(builder: (context) => TestingPage()));
+              List<Map<String, dynamic>>? tempMapData =
+                  await Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => SettingsPage(
+                            currentUser: currentUser,
+                            mapData: userMapData,
+                          ))) as List<Map<String, dynamic>>?;
+              if (tempMapData != null) {
+                setState(() {
+                  userMapData = tempMapData;
+                });
+              }
             },
             icon: const Icon(Icons.settings),
           ),

@@ -3,16 +3,16 @@ import 'package:theraportal/Objects/User.dart';
 // import 'package:intl/intl.dart';
 import 'package:theraportal/Pages/CommunicationPage.dart'; // Import for date formatting
 
-class MessagesCard extends StatelessWidget {
+class MessagesCard extends StatefulWidget {
   final String firstName;
   final String lastName;
   final UserType userType;
-  final String? lastMessageContent;
+  String? lastMessageContent;
   final bool sentByCurrentUser;
   final DateTime? messageTimestamp;
   final String withUserId;
 
-  const MessagesCard({
+  MessagesCard({
     super.key,
     required this.firstName,
     required this.lastName,
@@ -24,31 +24,36 @@ class MessagesCard extends StatelessWidget {
   });
 
   @override
+  State<MessagesCard> createState() => _MessagesCardState();
+}
+
+class _MessagesCardState extends State<MessagesCard> {
+  @override
   Widget build(BuildContext context) {
     String cardTitle;
     String subtitle;
 
-    if (userType == UserType.Patient) {
-      cardTitle = '$firstName $lastName';
+    if (widget.userType == UserType.Patient) {
+      cardTitle = '${widget.firstName} ${widget.lastName}';
     } else {
-      cardTitle = '$firstName ${lastName[0]}.';
+      cardTitle = '${widget.firstName} ${widget.lastName[0]}.';
     }
 
     //determine subtitle based on last message content and sender
-    if (lastMessageContent != null) {
-      if (sentByCurrentUser) {
-        subtitle = 'You: $lastMessageContent';
+    if (widget.lastMessageContent != null) {
+      if (widget.sentByCurrentUser) {
+        subtitle = 'You: ${widget.lastMessageContent}';
       } else {
-        subtitle = '$firstName: $lastMessageContent';
+        subtitle = '${widget.firstName}: ${widget.lastMessageContent}';
       }
     } else {
-      subtitle = 'Click here to message $firstName';
+      subtitle = 'Click here to message ${widget.firstName}';
     }
 
     //format message timestamp for display
-    String formattedTimestamp = messageTimestamp != null
+    String formattedTimestamp = widget.messageTimestamp != null
         // ? DateFormat('EEEE \'at\' h:mm a (M/d/yy)').format(messageTimestamp!)
-        ? formatTimestamp(messageTimestamp!)
+        ? formatTimestamp(widget.messageTimestamp!)
         : '';
 
     return Card(
@@ -58,17 +63,19 @@ class MessagesCard extends StatelessWidget {
         trailing: Column(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            if (messageTimestamp != null)
+            if (widget.messageTimestamp != null)
               Text(
                 formattedTimestamp,
                 style: const TextStyle(fontSize: 12, color: Colors.grey),
               ),
           ],
         ),
-        onTap: () {
-          Navigator.of(context).push(MaterialPageRoute(
-              builder: (context) =>
-                  CommunicationPage(withUserId: withUserId, name: cardTitle)));
+        onTap: () async {
+          widget.lastMessageContent = await Navigator.of(context).push(
+              MaterialPageRoute(
+                  builder: (context) => CommunicationPage(
+                      withUserId: widget.withUserId, name: cardTitle)));
+          setState(() {});
         },
       ),
     );

@@ -50,9 +50,15 @@ class _LargeScreenState extends State<LargeScreen> {
               child: Text('Error loading messages.'),
             );
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(
+            String assignmentType = (currentUser.userType == UserType.Patient)
+                ? "therapist"
+                : "patient";
+            return Center(
               child: Text(
-                  'There are no users currently associated with your account.'),
+                'There are no users currently associated with your account. Go to your settings page to add a $assignmentType to your account.',
+                style: const TextStyle(color: Styles.lightGrey),
+                textAlign: TextAlign.center,
+              ),
             );
           } else {
             //build the scrollable list of MessagesCard widgets
