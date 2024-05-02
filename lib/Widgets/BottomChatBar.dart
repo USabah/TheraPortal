@@ -79,66 +79,75 @@ class _BottomChatBarState extends State<BottomChatBar> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 60,
-      decoration: const BoxDecoration(
-        color: Color(0xff161616),
-        boxShadow: [boxShadow],
-      ),
-      child: Align(
-        alignment: Alignment.center,
-        child: Row(
-          mainAxisSize: MainAxisSize.max,
-          children: [
-            Container(
-              alignment: Alignment.center,
-              margin: const EdgeInsets.symmetric(
-                horizontal: 15.0,
-              ),
-              constraints: const BoxConstraints(
-                maxWidth: 275,
-              ),
-              child: TextField(
-                cursorColor: Colors.lightBlue,
-                controller: textController,
-                textAlign: TextAlign.left,
-                textAlignVertical: TextAlignVertical.center,
-                style: inputText,
-                keyboardType: TextInputType.text,
-                onEditingComplete: sendMessage,
-                decoration: const InputDecoration(
-                  filled: true,
-                  fillColor: Color(0xff212121),
-                  border: outlineBorder,
-                  enabledBorder: roundedBorder,
-                  labelStyle: placeholder,
-                  labelText: 'Enter message',
-                  floatingLabelBehavior: FloatingLabelBehavior.never,
-                  contentPadding: EdgeInsets.only(
-                    left: 20.0,
-                    right: 10.0,
-                    top: 0.0,
-                    bottom: 0.0,
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4.5),
+      child: Container(
+        height: 60,
+        width: MediaQuery.of(context).size.width * 0.95,
+        decoration: BoxDecoration(
+            color: const Color(0xff161616),
+            boxShadow: const [boxShadow],
+            borderRadius: BorderRadius.circular(10.0)),
+        child: Align(
+          alignment: Alignment.center,
+          child: Row(
+            mainAxisSize: MainAxisSize.max,
+            children: [
+              Expanded(
+                child: Container(
+                  alignment: Alignment.center,
+                  margin: const EdgeInsets.symmetric(
+                    horizontal: 10.0,
+                  ),
+                  constraints: const BoxConstraints(
+                    maxWidth: 275,
+                  ),
+                  child: TextField(
+                    cursorColor: Colors.lightBlue,
+                    controller: textController,
+                    textAlign: TextAlign.left,
+                    textAlignVertical: TextAlignVertical.center,
+                    style: inputText,
+                    keyboardType: TextInputType.text,
+                    onEditingComplete: sendMessage,
+                    decoration: const InputDecoration(
+                      filled: true,
+                      fillColor: Color(0xff212121),
+                      border: outlineBorder,
+                      enabledBorder: roundedBorder,
+                      labelStyle: placeholder,
+                      labelText: 'Enter message',
+                      floatingLabelBehavior: FloatingLabelBehavior.never,
+                      contentPadding: EdgeInsets.only(
+                        left: 20.0,
+                        right: 10.0,
+                        top: 0.0,
+                        bottom: 0.0,
+                      ),
+                    ),
                   ),
                 ),
               ),
-            ),
-            SizedBox(
-              height: 45,
-              width: 50,
-              child: FloatingActionButton(
-                onPressed: sendMessage,
-                elevation: 8.0,
-                backgroundColor: Colors.lightBlue,
-                child: const Center(
-                  child: Icon(
-                    Icons.send,
-                    size: 30.0,
+              Padding(
+                padding: const EdgeInsets.only(right: 16.0, bottom: 3.0),
+                child: SizedBox(
+                  height: 45,
+                  width: 50,
+                  child: FloatingActionButton(
+                    onPressed: sendMessage,
+                    elevation: 8.0,
+                    backgroundColor: Colors.lightBlue,
+                    child: const Center(
+                      child: Icon(
+                        Icons.send,
+                        size: 30.0,
+                      ),
+                    ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

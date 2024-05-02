@@ -25,8 +25,7 @@ class LargeScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Spacer(), // Pushes the logo 1/4 down from the top
-            // Logo or App Name
+            const Spacer(),
             const Text(
               "TheraPortal",
               style: logoText,

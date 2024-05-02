@@ -36,7 +36,7 @@ class PatientProfileCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-                'Date of Birth: ${DateFormat("MM-dd-yyyy").format(dateOfBirth)}'),
+                'Date of Birth: ${DateFormat("MM/dd/yyyy").format(dateOfBirth)}'),
             Text('Organization: ${organization ?? "None"}'),
             Text(
               'Next Session: ${nextScheduledSession != null ? DateFormat('EEEE \'at\' h:mma \'(\'M/d/yy\')\'').format(nextScheduledSession!) : "Not Scheduled"}',

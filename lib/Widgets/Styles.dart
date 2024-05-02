@@ -29,7 +29,22 @@ var themeStyle = ThemeData(
     inputDecorationTheme: const InputDecorationTheme(
         labelStyle: TextStyle(
       color: Styles.beige,
-    )));
+    )),
+    elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ButtonStyle(
+            backgroundColor: MaterialStateProperty.all<Color?>(
+              Styles.beige,
+            ),
+            shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+              RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10.0),
+              ),
+            ),
+            foregroundColor: MaterialStateProperty.all<Color?>(
+              Styles.dark,
+            ),
+            textStyle: MaterialStateProperty.all(
+                TextStyle(fontSize: 16, fontWeight: FontWeight.bold)))));
 
 const outlineBorder = OutlineInputBorder(
   borderRadius: BorderRadius.all(

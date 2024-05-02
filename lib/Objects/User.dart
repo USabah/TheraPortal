@@ -95,6 +95,18 @@ class TheraportalUser {
     };
   }
 
+  String fullNameDisplay(bool withDot) {
+    if (userType == UserType.Patient) {
+      return '$firstName $lastName';
+    } else {
+      return '$firstName ${lastName[0]}${(withDot) ? '.' : ''}';
+    }
+  }
+
+  String fullName() {
+    return '$firstName $lastName';
+  }
+
   @override
   String toString() {
     return 'TheraportalUser(id: $id, email: $email, firstName: $firstName, lastName: $lastName, groupId: $groupId, userType: $userType, dateCreated: $dateCreated, dateOfBirth: $dateOfBirth, referenceCode: $referenceCode, therapistType: $therapistType)';

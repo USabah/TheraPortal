@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:theraportal/Objects/Session.dart';
 import 'package:theraportal/Objects/User.dart';
 
 class DatabaseRouter {
@@ -167,22 +168,24 @@ class DatabaseRouter {
     return patientIds;
   }
 
-  Future<void> createAssignment(String patientId, String therapistId) async {
-    try {
-      DocumentReference assignmentRef =
-          _firestore.collection('Assignments').doc();
-      //set the data for the assignment document
-      await assignmentRef.set({
-        'patient_id': patientId,
-        'therapist_id': therapistId,
-      });
+  Future<Map<String, dynamic>> getSingleUserCardInfo(
+      TheraportalUser user) async {
+    String? groupName = await _getGroupName(user.groupId);
 
-      //create empty subcollections under the assignment document
-      // await assignmentRef.collection('ExerciseAssignments').add({});
-      // await assignmentRef.collection('ScheduledSessions').add({});
-    } catch (e) {
-      print('Error adding assignment: $e');
-      throw e;
+    if (user.userType == UserType.Patient) {
+      return {
+        "patient": user,
+        "group_name": groupName,
+        "next_session": null,
+      };
+    } else if (user.userType == UserType.Therapist) {
+      return {
+        "therapist": user,
+        "group_name": groupName,
+        "next_session": null,
+      };
+    } else {
+      return {};
     }
   }
 
@@ -399,5 +402,101 @@ class DatabaseRouter {
     } catch (e) {
       print('Error removing patient assignment: $e');
     }
+  }
+
+  Future<Object> createAssignmentFromReferenceCode(String currentUserId,
+      String referenceCode, UserType assignmentType) async {
+    try {
+      var result =
+          await _getUserByReferenceCodeAndType(referenceCode, assignmentType);
+
+      if (result is String) {
+        //user not found
+        return result;
+      } else if (result is DocumentSnapshot<Map<String, dynamic>>) {
+        TheraportalUser user = TheraportalUser.fromMap(result.data()!);
+        String patientId, therapistId;
+        if (assignmentType == UserType.Patient) {
+          patientId = user.id;
+          therapistId = currentUserId;
+        } else {
+          patientId = currentUserId;
+          therapistId = user.id;
+        }
+        //check if an assignment already exists
+        bool assignmentAlreadyExists =
+            await _assignmentExists(patientId, therapistId);
+        if (assignmentAlreadyExists) {
+          return '${assignmentType.toString()} is already assigned to your account!';
+        }
+        //create the assignment otherwise
+        await _createAssignment(patientId, therapistId);
+
+        return user;
+      } else {
+        // Handle unexpected type
+        return 'Unexpected error occurred.';
+      }
+    } catch (e) {
+      print('Error creating assignment: $e');
+      return 'An error occurred while creating the assignment.';
+    }
+  }
+
+  Future<Object> _getUserByReferenceCodeAndType(
+      String referenceCode, UserType userType) async {
+    QuerySnapshot<Map<String, dynamic>> snapshot = await _firestore
+        .collection('Users')
+        .where('user_reference_code', isEqualTo: referenceCode)
+        .where('user_type', isEqualTo: userType.toString())
+        .get();
+
+    if (snapshot.docs.isNotEmpty) {
+      return snapshot.docs.first;
+    } else {
+      return 'Could not find a ${userType.toString().toLowerCase()} with that code.';
+    }
+  }
+
+  Future<bool> _assignmentExists(String patientId, String therapistId) async {
+    QuerySnapshot<Map<String, dynamic>> snapshot = await _firestore
+        .collection('Assignments')
+        .where('patient_id', isEqualTo: patientId)
+        .where('therapist_id', isEqualTo: therapistId)
+        .get();
+
+    return snapshot.docs.isNotEmpty;
+  }
+
+  Future<void> _createAssignment(String patientId, String therapistId) async {
+    try {
+      DocumentReference assignmentRef =
+          _firestore.collection('Assignments').doc();
+      //set the data for the assignment document
+      await assignmentRef.set({
+        'patient_id': patientId,
+        'therapist_id': therapistId,
+      });
+    } catch (e) {
+      print('Error adding assignment: $e');
+      throw e;
+    }
+  }
+
+  Future<bool> updateReferenceCode(String userId, String referenceCode) async {
+    try {
+      DocumentReference userRef =
+          FirebaseFirestore.instance.collection('Users').doc(userId);
+      await userRef.update({'user_reference_code': referenceCode});
+      return true;
+    } catch (e) {
+      print('Error updating reference code: $e');
+      return false;
+    }
+  }
+
+  Future<List<Session>> getSessionsForUser(String id) async {
+    List<Session> sessionList = [];
+    return sessionList;
   }
 }

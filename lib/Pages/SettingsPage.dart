@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:theraportal/Objects/User.dart';
+import 'package:theraportal/Pages/AccountInformationPage.dart';
 import 'package:theraportal/Pages/AddAssignmentPage.dart';
 import 'package:theraportal/Utilities/AuthRouter.dart';
 import 'package:theraportal/Widgets/Widgets.dart';
@@ -67,8 +68,9 @@ class LargeScreen extends StatelessWidget {
                               color: Colors.white, fontWeight: FontWeight.bold),
                         )),
                         onTap: () {
-                          // Navigate to the update account information screen
-                          // Navigator.pushNamed(context, '/update_account');
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => AccountInformationPage(
+                                  currentUser: currentUser)));
                         },
                       ),
                     ),

@@ -3,6 +3,7 @@ export 'AccountReferenceCodeBlock.dart';
 export 'Alert.dart';
 export 'AuthPopup.dart';
 export 'BottomChatBar.dart';
+export 'CalendarTableView.dart';
 export 'ChatContainer.dart';
 export "MessageCard.dart";
 export 'PatientProfileCard.dart';

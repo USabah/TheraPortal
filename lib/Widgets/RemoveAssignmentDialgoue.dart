@@ -16,10 +16,10 @@ class RemoveAssignmentDialog extends StatefulWidget {
 
 class _RemoveAssignmentDialogState extends State<RemoveAssignmentDialog> {
   String? selectedAssignmentId;
-  String? fullName;
   String? fullNameField;
   bool canRemove = false;
   late String assignmentTypeString;
+  late TheraportalUser assignment;
 
   @override
   void initState() {
@@ -49,14 +49,10 @@ class _RemoveAssignmentDialogState extends State<RemoveAssignmentDialog> {
                 labelStyle: const TextStyle(color: Colors.black)),
             value: selectedAssignmentId,
             items: widget.mapData.map((Map<String, dynamic> map) {
-              TheraportalUser assignment =
-                  map[assignmentTypeString.toLowerCase()];
-              fullName =
-                  '${assignment.firstName} ${assignment.userType == UserType.Therapist ? assignment.lastName[0] : assignment.lastName}';
+              assignment = map[assignmentTypeString.toLowerCase()];
               return DropdownMenuItem<String>(
                 value: assignment.id,
-                child: Text(
-                    '$fullName${assignment.userType == UserType.Therapist ? "." : ""}'),
+                child: Text(assignment.fullNameDisplay(true)),
               );
             }).toList(),
             onChanged: (value) {
@@ -70,13 +66,14 @@ class _RemoveAssignmentDialogState extends State<RemoveAssignmentDialog> {
           if (selectedAssignmentId != null)
             TextFormField(
               decoration: InputDecoration(
-                  labelText: 'Enter "$fullName" to confirm.',
+                  labelText:
+                      'Type "${assignment.fullNameDisplay(false)}" to confirm.',
                   labelStyle: const TextStyle(color: Colors.red, fontSize: 16)),
               style: const TextStyle(color: Colors.black),
               onChanged: (value) {
                 bool currentCanRemoveVal = canRemove;
                 fullNameField = value;
-                canRemove = fullNameField == fullName;
+                canRemove = fullNameField == assignment.fullNameDisplay(false);
                 if (currentCanRemoveVal != canRemove) {
                   setState(() {});
                 }

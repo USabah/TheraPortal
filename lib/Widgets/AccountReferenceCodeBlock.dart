@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:theraportal/Widgets/Styles.dart';
 
 class AccountReferenceCodeBlock extends StatelessWidget {
   final String character;
@@ -9,16 +10,16 @@ class AccountReferenceCodeBlock extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 4),
-      width: 40,
-      height: 40,
+      width: 50,
+      height: 50,
       decoration: BoxDecoration(
-        border: Border.all(color: Colors.black),
+        border: Border.all(color: Styles.beige),
         borderRadius: BorderRadius.circular(8),
       ),
       alignment: Alignment.center,
       child: Text(
         character.toUpperCase(),
-        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
       ),
     );
   }

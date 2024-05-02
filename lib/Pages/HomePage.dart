@@ -58,7 +58,7 @@ class _LargeScreenState extends State<LargeScreen> {
       }
     }
     setState(() {
-      isLoading = false; // Set loading state to false on error
+      isLoading = false;
     });
   }
 
