@@ -202,8 +202,10 @@ class _LargeScreenState extends State<LargeScreen> {
                                       },
                                       btnText: 'Close');
                                 },
-                                child: const Icon(Icons
-                                    .help_outline), // Change the icon as needed
+                                child: const Icon(
+                                  Icons.help_outline,
+                                  color: Colors.grey,
+                                ),
                               ),
                             ),
                             onChanged: (_) {
@@ -244,37 +246,6 @@ class _LargeScreenState extends State<LargeScreen> {
               ),
             ),
           );
-  }
-
-  void _showOrgCodeInfoDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Organization Code'),
-          content: const SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                    "If you were brought to TheraPortal via an organization or social service, see if they provided you with their group's reference code. Alternatively, you can return to this later via your account settings.",
-                    style: TextStyle(
-                      color: Colors.black,
-                    ))
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Close'),
-            ),
-          ],
-        );
-      },
-    );
   }
 
   String fixNameCapitalization(String input) {

@@ -51,7 +51,7 @@ class DatabaseRouter {
   }
 
   Future<List<Map<String, dynamic>>> getTherapistCardInfo(
-      String patientUserId) async {
+      String patientUserId, Session? nextScheduledSession) async {
     List<Map<String, dynamic>> therapists = [];
 
     try {
@@ -60,8 +60,8 @@ class DatabaseRouter {
       for (String therapistUserId in therapistUserIds) {
         TheraportalUser therapist = await getUser(therapistUserId);
         String? groupName = await _getGroupName(therapist.groupId);
-        DateTime? nextScheduledSession =
-            await _getNextScheduledSession(therapistUserId, patientUserId);
+        // DateTime? nextScheduledSession =
+        //     await _getNextScheduledSession(therapistUserId, patientUserId);
 
         therapists.add({
           "therapist": therapist,
@@ -101,35 +101,35 @@ class DatabaseRouter {
     }
   }
 
-  Future<DateTime?> _getNextScheduledSession(
-      String therapistUserId, String patientUserId) async {
-    QuerySnapshot sessionsQuery = await _firestore
-        .collection('Assignments')
-        .where('patient_id', isEqualTo: patientUserId)
-        .where('therapist_id', isEqualTo: therapistUserId)
-        .limit(1)
-        .get();
+  // Future<DateTime?> _getNextScheduledSession(
+  //     String therapistUserId, String patientUserId) async {
+  //   QuerySnapshot sessionsQuery = await _firestore
+  //       .collection('Assignments')
+  //       .where('patient_id', isEqualTo: patientUserId)
+  //       .where('therapist_id', isEqualTo: therapistUserId)
+  //       .limit(1)
+  //       .get();
 
-    if (sessionsQuery.docs.isNotEmpty) {
-      String assignmentId = sessionsQuery.docs.first.id;
-      QuerySnapshot scheduledSessionsQuery = await _firestore
-          .collection('Assignments')
-          .doc(assignmentId)
-          .collection('ScheduledSessions')
-          .orderBy('scheduled_for', descending: false)
-          .limit(1)
-          .get();
+  //   if (sessionsQuery.docs.isNotEmpty) {
+  //     String assignmentId = sessionsQuery.docs.first.id;
+  //     QuerySnapshot scheduledSessionsQuery = await _firestore
+  //         .collection('Assignments')
+  //         .doc(assignmentId)
+  //         .collection('ScheduledSessions')
+  //         .orderBy('scheduled_for', descending: false)
+  //         .limit(1)
+  //         .get();
 
-      if (scheduledSessionsQuery.docs.isNotEmpty) {
-        return scheduledSessionsQuery.docs.first['scheduled_for'].toDate();
-      }
-    }
+  //     if (scheduledSessionsQuery.docs.isNotEmpty) {
+  //       return scheduledSessionsQuery.docs.first['scheduled_for'].toDate();
+  //     }
+  //   }
 
-    return null;
-  }
+  //   return null;
+  // }
 
   Future<List<Map<String, dynamic>>> getPatientCardInfo(
-      String therapistUserId) async {
+      String therapistUserId, Session? nextScheduledSession) async {
     List<Map<String, dynamic>> patients = [];
 
     try {
@@ -138,8 +138,8 @@ class DatabaseRouter {
       for (String patientUserId in patientUserIds) {
         TheraportalUser patient = await getUser(patientUserId);
         String? groupName = await _getGroupName(patient.groupId);
-        DateTime? nextScheduledSession =
-            await _getNextScheduledSession(patientUserId, therapistUserId);
+        // DateTime? nextScheduledSession =
+        //     await _getNextScheduledSession(patientUserId, therapistUserId);
 
         patients.add({
           "patient": patient,
@@ -495,8 +495,73 @@ class DatabaseRouter {
     }
   }
 
-  Future<List<Session>> getSessionsForUser(String id) async {
+  Future<List<Session>> getAllUserSessions(TheraportalUser currentUser) async {
     List<Session> sessionList = [];
+    //get session documents
+    QuerySnapshot assignmentSnapshot = await _firestore
+        .collection('Assignments')
+        .where(
+            (currentUser.userType == UserType.Therapist)
+                ? 'therapist_id'
+                : 'patient_id',
+            isEqualTo: currentUser.id)
+        .get();
+
+    //extract sessions
+    for (QueryDocumentSnapshot assignmentDoc in assignmentSnapshot.docs) {
+      Map<String, dynamic> assignmentData =
+          assignmentDoc.data() as Map<String, dynamic>;
+
+      TheraportalUser patient = (currentUser.userType == UserType.Patient)
+          ? currentUser
+          : await getUser(assignmentData["patient_id"]);
+      TheraportalUser therapist = (currentUser.userType == UserType.Therapist)
+          ? currentUser
+          : await getUser(assignmentData['therapist_id']);
+
+      QuerySnapshot sessionSnapshot =
+          await assignmentDoc.reference.collection('ScheduledSessions').get();
+      sessionList.addAll(
+          _extractSessionsFromSnapshot(sessionSnapshot, patient, therapist));
+    }
+
     return sessionList;
+  }
+
+  List<Session> _extractSessionsFromSnapshot(QuerySnapshot snapshot,
+      TheraportalUser patient, TheraportalUser therapist) {
+    return snapshot.docs.map((doc) {
+      return Session.fromMap(
+          doc.data() as Map<String, dynamic>, patient, therapist);
+    }).toList();
+  }
+
+  Future<bool> addSession(Session session) async {
+    String patientId = session.patient.id;
+    String therapistId = session.therapist.id;
+    try {
+      QuerySnapshot assignmentQuery = await FirebaseFirestore.instance
+          .collection('Assignments')
+          .where('patient_id', isEqualTo: patientId)
+          .where('therapist_id', isEqualTo: therapistId)
+          .get();
+
+      //add session
+      if (assignmentQuery.docs.isNotEmpty) {
+        String assignmentId = assignmentQuery.docs.first.id;
+
+        await FirebaseFirestore.instance
+            .collection('Assignments')
+            .doc(assignmentId)
+            .collection('ScheduledSessions')
+            .add(session.toMap());
+      } else {
+        return false;
+      }
+    } catch (e) {
+      print(e);
+      rethrow;
+    }
+    return true;
   }
 }

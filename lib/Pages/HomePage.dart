@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:theraportal/Objects/Session.dart';
 import 'package:theraportal/Objects/User.dart';
 import 'package:theraportal/Utilities/DatabaseRouter.dart';
 import 'package:theraportal/Widgets/Widgets.dart';
@@ -40,26 +41,6 @@ class _LargeScreenState extends State<LargeScreen> {
     super.initState();
     mapData = widget.mapData;
     currentUser = widget.currentUser;
-    // loadMapData();
-  }
-
-  Future<void> loadMapData() async {
-    if (currentUser.userType == UserType.Patient) {
-      try {
-        mapData = await databaseRouter.getTherapistCardInfo(currentUser.id);
-      } catch (e) {
-        print('Error loading therapist data: $e');
-      }
-    } else if (currentUser.userType == UserType.Therapist) {
-      try {
-        mapData = await databaseRouter.getPatientCardInfo(currentUser.id);
-      } catch (e) {
-        print('Error loading patient data: $e');
-      }
-    }
-    setState(() {
-      isLoading = false;
-    });
   }
 
   @override
@@ -90,7 +71,7 @@ class _LargeScreenState extends State<LargeScreen> {
                           TheraportalUser therapist =
                               therapistInfo['therapist'];
                           String? groupName = therapistInfo['group_name'];
-                          DateTime? nextSession = therapistInfo['next_session'];
+                          Session? nextSession = therapistInfo['next_session'];
 
                           return TherapistProfileCard(
                             firstName: therapist.firstName,
@@ -105,7 +86,7 @@ class _LargeScreenState extends State<LargeScreen> {
                         ...mapData.map((patientInfo) {
                           TheraportalUser patient = patientInfo['patient'];
                           String? groupName = patientInfo['group_name'];
-                          DateTime? nextSession = patientInfo['next_session'];
+                          Session? nextSession = patientInfo['next_session'];
 
                           return PatientProfileCard(
                             firstName: patient.firstName,

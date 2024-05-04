@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:theraportal/Objects/Session.dart';
 import 'package:theraportal/Objects/User.dart';
 import 'package:theraportal/Pages/HomePage.dart';
 import 'package:theraportal/Pages/MessagesPage.dart';
 import 'package:theraportal/Pages/SchedulePage.dart';
 import 'package:theraportal/Pages/SettingsPage.dart';
-import 'package:theraportal/Pages/TestingPage.dart';
 import 'package:theraportal/Utilities/AuthRouter.dart';
 import 'package:theraportal/Utilities/DatabaseRouter.dart';
 import 'package:theraportal/Widgets/Widgets.dart';
@@ -36,6 +36,7 @@ class _LargeScreenState extends State<LargeScreen> {
   List<String> headerPageTexts = ['Home', 'Schedule', 'Messages'];
   List<Widget Function()> pages = [];
   List<Map<String, dynamic>> userMapData = [];
+  List<Session> userSessions = [];
 
   @override
   void initState() {
@@ -48,7 +49,9 @@ class _LargeScreenState extends State<LargeScreen> {
     try {
       final user = await DatabaseRouter().getUser(AuthRouter.getUserUID());
       currentUser = user;
-      await loadMapData();
+      await _loadUserSessionData();
+      Session? nextSession = (userSessions.isNotEmpty) ? userSessions[0] : null;
+      await _loadUserMapData(nextSession);
       setState(() {
         _isLoading = false;
         _initPages();
@@ -61,22 +64,40 @@ class _LargeScreenState extends State<LargeScreen> {
     }
   }
 
-  Future<void> loadMapData() async {
+  Future<void> _loadUserSessionData() async {
+    try {
+      userSessions = await databaseRouter.getAllUserSessions(currentUser);
+      Session.sortSessions(userSessions);
+    } catch (e) {
+      print('Error loading user sessions: $e');
+    }
+  }
+
+  Future<void> _loadUserMapData(Session? nextSession) async {
     if (currentUser.userType == UserType.Patient) {
       try {
-        userMapData = await databaseRouter.getTherapistCardInfo(currentUser.id);
+        userMapData = await databaseRouter.getTherapistCardInfo(
+            currentUser.id, nextSession);
       } catch (e) {
         print('Error loading therapist data: $e');
       }
     } else if (currentUser.userType == UserType.Therapist) {
       try {
-        userMapData = await databaseRouter.getPatientCardInfo(currentUser.id);
+        userMapData = await databaseRouter.getPatientCardInfo(
+            currentUser.id, nextSession);
       } catch (e) {
         print('Error loading patient data: $e');
       }
     }
     setState(() {
       _isLoading = false; // Set loading state to false on error
+    });
+  }
+
+  void updateSessions(List<Session> updatedSessions) {
+    // Update the sessions list in the state
+    setState(() {
+      userSessions = updatedSessions;
     });
   }
 
@@ -88,6 +109,9 @@ class _LargeScreenState extends State<LargeScreen> {
           ),
       () => SchedulePage(
             currentUser: currentUser,
+            userSessions: userSessions,
+            onUpdateSessions: updateSessions,
+            mapData: userMapData,
           ),
       () => MessagesPage(
             currentUser: currentUser,

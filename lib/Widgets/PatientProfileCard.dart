@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:theraportal/Objects/Session.dart';
 import 'package:theraportal/Pages/CommunicationPage.dart';
 import 'package:theraportal/Widgets/Widgets.dart';
 
@@ -7,7 +8,7 @@ class PatientProfileCard extends StatelessWidget {
   final String firstName;
   final String lastName;
   final String? organization;
-  final DateTime? nextScheduledSession;
+  final Session? nextScheduledSession;
   final DateTime dateOfBirth;
   final String patientId;
 
@@ -39,7 +40,7 @@ class PatientProfileCard extends StatelessWidget {
                 'Date of Birth: ${DateFormat("MM/dd/yyyy").format(dateOfBirth)}'),
             Text('Organization: ${organization ?? "None"}'),
             Text(
-              'Next Session: ${nextScheduledSession != null ? DateFormat('EEEE \'at\' h:mma \'(\'M/d/yy\')\'').format(nextScheduledSession!) : "Not Scheduled"}',
+              'Next Session: ${nextScheduledSession != null ? DateFormat('EEEE \'at\' h:mma \'(\'M/d/yy\')\'').format(nextScheduledSession!.getSessionStartTime()) : "Not Scheduled"}',
             ),
           ],
         ),

@@ -11,5 +11,6 @@ export 'ReceivedMessage.dart';
 export 'RemoveAssignmentDialgoue.dart';
 export 'ResponsiveWidget.dart';
 export 'SentMessage.dart';
+export 'SessionCard.dart';
 export 'Styles.dart';
 export 'TherapistProfileCard.dart';

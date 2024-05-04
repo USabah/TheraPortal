@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:theraportal/Objects/Session.dart';
 import 'package:theraportal/Pages/CommunicationPage.dart';
 import 'package:theraportal/Widgets/Widgets.dart';
 
@@ -8,7 +9,7 @@ class TherapistProfileCard extends StatelessWidget {
   final String lastName;
   final String therapistType;
   final String? organization;
-  final DateTime? nextScheduledSession;
+  final Session? nextScheduledSession;
   final String therapistId;
 
   const TherapistProfileCard({
@@ -38,7 +39,7 @@ class TherapistProfileCard extends StatelessWidget {
             Text('Therapist Type: $therapistType'),
             Text('Organization: ${organization ?? "None"}'),
             Text(
-              'Next Session: ${nextScheduledSession != null ? DateFormat('EEEE \'at\' h:mma \'(\'M/d/yy\')\'').format(nextScheduledSession!) : "Not Scheduled"}',
+              'Next Session: ${nextScheduledSession != null ? DateFormat('EEEE \'at\' h:mma \'(\'M/d/yy\')\'').format(nextScheduledSession!.getSessionStartTime()) : "Not Scheduled"}',
             ),
           ],
         ),
