@@ -25,6 +25,7 @@ class PatientProfileCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
+      color: const Color.fromRGBO(151, 167, 231, 1),
       child: ListTile(
         contentPadding:
             const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
@@ -32,15 +33,24 @@ class PatientProfileCard extends StatelessWidget {
           Icons.person,
           size: MediaQuery.of(context).size.height * 0.06,
         ),
-        title: Text('$firstName $lastName'),
+        title: Text(
+          '$firstName $lastName',
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-                'Date of Birth: ${DateFormat("MM/dd/yyyy").format(dateOfBirth)}'),
-            Text('Organization: ${organization ?? "None"}'),
+              'Date of Birth: ${DateFormat("MM/dd/yyyy").format(dateOfBirth)}',
+              style: const TextStyle(color: Colors.black),
+            ),
+            Text(
+              'Organization: ${organization ?? "None"}',
+              style: const TextStyle(color: Colors.black),
+            ),
             Text(
               'Next Session: ${nextScheduledSession != null ? DateFormat('EEEE \'at\' h:mma \'(\'M/d/yy\')\'').format(nextScheduledSession!.getSessionStartTime()) : "Not Scheduled"}',
+              style: const TextStyle(color: Colors.black),
             ),
           ],
         ),

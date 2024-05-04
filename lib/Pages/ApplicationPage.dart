@@ -42,19 +42,20 @@ class _LargeScreenState extends State<LargeScreen> {
   void initState() {
     super.initState();
     _pageController = PageController(initialPage: _currentIndex);
-    _loadUserData();
+    _loadUserData(initPages: true);
   }
 
-  Future<void> _loadUserData() async {
+  Future<void> _loadUserData({bool initPages = false}) async {
     try {
       final user = await DatabaseRouter().getUser(AuthRouter.getUserUID());
       currentUser = user;
       await _loadUserSessionData();
-      Session? nextSession = (userSessions.isNotEmpty) ? userSessions[0] : null;
-      await _loadUserMapData(nextSession);
+      await _loadUserMapData();
       setState(() {
         _isLoading = false;
-        _initPages();
+        if (initPages) {
+          _initPages();
+        }
       });
     } catch (e) {
       print('Error loading user data: $e');
@@ -73,18 +74,18 @@ class _LargeScreenState extends State<LargeScreen> {
     }
   }
 
-  Future<void> _loadUserMapData(Session? nextSession) async {
+  Future<void> _loadUserMapData() async {
     if (currentUser.userType == UserType.Patient) {
       try {
         userMapData = await databaseRouter.getTherapistCardInfo(
-            currentUser.id, nextSession);
+            currentUser, userSessions);
       } catch (e) {
         print('Error loading therapist data: $e');
       }
     } else if (currentUser.userType == UserType.Therapist) {
       try {
-        userMapData = await databaseRouter.getPatientCardInfo(
-            currentUser.id, nextSession);
+        userMapData =
+            await databaseRouter.getPatientCardInfo(currentUser, userSessions);
       } catch (e) {
         print('Error loading patient data: $e');
       }
@@ -106,12 +107,14 @@ class _LargeScreenState extends State<LargeScreen> {
       () => HomePage(
             currentUser: currentUser,
             mapData: userMapData,
+            refreshFunction: _loadUserData,
           ),
       () => SchedulePage(
             currentUser: currentUser,
             userSessions: userSessions,
             onUpdateSessions: updateSessions,
             mapData: userMapData,
+            refreshFunction: _loadUserData,
           ),
       () => MessagesPage(
             currentUser: currentUser,

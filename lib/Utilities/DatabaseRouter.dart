@@ -51,15 +51,18 @@ class DatabaseRouter {
   }
 
   Future<List<Map<String, dynamic>>> getTherapistCardInfo(
-      String patientUserId, Session? nextScheduledSession) async {
+      TheraportalUser currentUser, List<Session> userSessions) async {
     List<Map<String, dynamic>> therapists = [];
 
     try {
       List<String> therapistUserIds =
-          await _getTherapistIdsForPatient(patientUserId);
+          await _getTherapistIdsForPatient(currentUser.id);
       for (String therapistUserId in therapistUserIds) {
         TheraportalUser therapist = await getUser(therapistUserId);
         String? groupName = await _getGroupName(therapist.groupId);
+        Session? nextScheduledSession = (userSessions.isNotEmpty)
+            ? Session.getNextSession(userSessions, currentUser.id, therapist.id)
+            : null;
         // DateTime? nextScheduledSession =
         //     await _getNextScheduledSession(therapistUserId, patientUserId);
 
@@ -129,17 +132,18 @@ class DatabaseRouter {
   // }
 
   Future<List<Map<String, dynamic>>> getPatientCardInfo(
-      String therapistUserId, Session? nextScheduledSession) async {
+      TheraportalUser currentUser, List<Session> userSessions) async {
     List<Map<String, dynamic>> patients = [];
 
     try {
       List<String> patientUserIds =
-          await _getPatientIdsForTherapist(therapistUserId);
+          await _getPatientIdsForTherapist(currentUser.id);
       for (String patientUserId in patientUserIds) {
         TheraportalUser patient = await getUser(patientUserId);
         String? groupName = await _getGroupName(patient.groupId);
-        // DateTime? nextScheduledSession =
-        //     await _getNextScheduledSession(patientUserId, therapistUserId);
+        Session? nextScheduledSession = (userSessions.isNotEmpty)
+            ? Session.getNextSession(userSessions, patient.id, currentUser.id)
+            : null;
 
         patients.add({
           "patient": patient,

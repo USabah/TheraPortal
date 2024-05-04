@@ -1,111 +1,104 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:theraportal/Objects/Session.dart';
+import 'package:theraportal/Objects/User.dart';
+import 'package:theraportal/Widgets/Styles.dart';
+
+//DONE
 
 class SessionCard extends StatelessWidget {
   final Session session;
+  final UserType userType;
 
-  const SessionCard({Key? key, required this.session}) : super(key: key);
+  SessionCard({
+    required this.session,
+    required this.userType,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.3),
-              spreadRadius: 2,
-              blurRadius: 4,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Column(
+    String title = userType == UserType.Therapist
+        ? session.patient.fullNameDisplay(true)
+        : session.therapist.fullNameDisplay(true);
+
+    String time =
+        '${DateFormat('h:mma').format(session.getSessionStartTime())} - ${DateFormat('h:mma').format(session.getSessionEndTime())}';
+
+    return Card(
+      color: Color.fromARGB(255, 225, 172, 101),
+      child: ListTile(
+        title: Text(title),
+        subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+            RichText(
+              text: TextSpan(
                 children: [
-                  if (session.dateTime != null) ...[
-                    Text(
-                      'Date: ${DateFormat('MM/dd/yyyy').format(session.dateTime!)}',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                        color: Colors.black87,
-                      ),
-                    ),
-                    const SizedBox(height: 8)
-                  ],
-                  Row(
-                    children: [
-                      const Icon(Icons.access_time,
-                          size: 16, color: Colors.grey),
-                      const SizedBox(width: 4),
-                      Text(
-                        'Time: ${session.timeOfDay.hour}:${session.timeOfDay.minute}',
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.grey[700],
-                        ),
-                      ),
-                    ],
+                  const TextSpan(
+                    text: 'Time: ',
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold, color: Colors.black),
                   ),
-                  const SizedBox(height: 12),
-                  if (session.additionalInfo != null)
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Notes:',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                            color: Colors.black87,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          session.additionalInfo!,
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey[700],
-                          ),
-                        ),
-                      ],
+                  TextSpan(
+                    text: time,
+                    style: const TextStyle(color: Colors.black),
+                  ),
+                ],
+              ),
+            ),
+            if (session.additionalInfo != null) ...[
+              RichText(
+                text: TextSpan(
+                  children: [
+                    const TextSpan(
+                      text: 'Notes: ',
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold, color: Colors.black),
                     ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      const Text(
-                        'Scheduled Weekly:',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                          color: Colors.black87,
-                        ),
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        session.isWeekly ? 'Yes' : 'No',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey[700],
-                        ),
-                      ),
-                    ],
+                    TextSpan(
+                      text: session.additionalInfo!,
+                      style: const TextStyle(color: Colors.black),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+            RichText(
+              text: TextSpan(
+                children: [
+                  const TextSpan(
+                    text: 'Rescheduled Weekly: ',
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold, color: Colors.black),
+                  ),
+                  TextSpan(
+                    text: session.isWeekly ? 'Yes' : 'No',
+                    style: const TextStyle(color: Colors.black),
                   ),
                 ],
               ),
             ),
           ],
         ),
+        trailing: userType == UserType.Therapist
+            ? PopupMenuButton<String>(
+                icon: const Icon(Icons.more_vert),
+                color: Styles.lightGrey,
+                onSelected: (value) {
+                  // Implement edit or remove logic
+                },
+                itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                  const PopupMenuItem<String>(
+                    value: 'edit',
+                    child: Text('Edit Session'),
+                  ),
+                  const PopupMenuItem<String>(
+                    value: 'remove',
+                    child: Text('Remove Session'),
+                  ),
+                ],
+              )
+            : null,
       ),
     );
   }

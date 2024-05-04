@@ -57,6 +57,7 @@ class _MessagesCardState extends State<MessagesCard> {
         : '';
 
     return Card(
+      color: Color.fromARGB(255, 248, 221, 169),
       child: ListTile(
         title: Text(cardTitle),
         subtitle: Text(subtitle),

@@ -316,6 +316,7 @@ class _ScheduleSessionFormState extends State<ScheduleSessionForm> {
                     ),
                     const SizedBox(height: 20),
                     TextFormField(
+                      maxLength: 60,
                       decoration: const InputDecoration(
                         labelText: 'Additional Info (optional)',
                         labelStyle: TextStyle(
@@ -392,21 +393,16 @@ class _ScheduleSessionFormState extends State<ScheduleSessionForm> {
                                           session);
                                   if (result != null) {
                                     //this means that there is an overlap in sessions
+                                    alertFunction(
+                                        context: context,
+                                        title: "Cannot Schedule Session",
+                                        content: result,
+                                        onPressed: () =>
+                                            Navigator.of(context).pop(),
+                                        btnText: "Close");
                                   } else {
                                     bool success = await databaseRouter
                                         .addSession(session);
-                                    setState(() {
-                                      isLoading = false;
-                                      alertFunction(
-                                          context: context,
-                                          title: "Could Not Schedule Session",
-                                          content:
-                                              "We could not add the session to your account at this time.",
-                                          onPressed: () =>
-                                              Navigator.of(context).pop(),
-                                          btnText: "Close",
-                                          isDismissable: false);
-                                    });
                                     if (!success) {
                                       alertFunction(
                                           context: context,
@@ -448,7 +444,7 @@ class _ScheduleSessionFormState extends State<ScheduleSessionForm> {
       builder: (BuildContext context) {
         return AlertDialog(
           backgroundColor: Colors.grey.shade300,
-          title: const Text('Weekly Recurrence'),
+          title: const Text('Reschedule Weekly'),
           content: const SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -471,58 +467,6 @@ class _ScheduleSessionFormState extends State<ScheduleSessionForm> {
           ],
         );
       },
-    );
-  }
-}
-
-class FieldWidget extends StatelessWidget {
-  final String label;
-  final String value;
-  final VoidCallback onPressed;
-
-  const FieldWidget({
-    super.key,
-    required this.label,
-    required this.value,
-    required this.onPressed,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onPressed,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 15),
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey),
-          borderRadius: BorderRadius.circular(8.0),
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              '$label ',
-              style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Styles.beige),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                value,
-                style: const TextStyle(
-                  fontSize: 16,
-
-                  decoration: TextDecoration
-                      .underline, // Add underline to indicate clickable text
-                ),
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

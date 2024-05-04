@@ -7,7 +7,12 @@ import 'package:theraportal/Widgets/Widgets.dart';
 class Body extends StatelessWidget {
   final TheraportalUser currentUser;
   final List<Map<String, dynamic>> mapData;
-  const Body({super.key, required this.currentUser, required this.mapData});
+  final Future<void> Function() refreshFunction;
+  const Body(
+      {super.key,
+      required this.currentUser,
+      required this.mapData,
+      required this.refreshFunction});
 
   @override
   Widget build(BuildContext context) {
@@ -15,6 +20,7 @@ class Body extends StatelessWidget {
       largeScreen: LargeScreen(
         currentUser: currentUser,
         mapData: mapData,
+        refreshFunction: refreshFunction,
       ),
     );
   }
@@ -23,8 +29,12 @@ class Body extends StatelessWidget {
 class LargeScreen extends StatefulWidget {
   final TheraportalUser currentUser;
   final List<Map<String, dynamic>> mapData;
+  final Future<void> Function() refreshFunction;
   const LargeScreen(
-      {super.key, required this.currentUser, required this.mapData});
+      {super.key,
+      required this.currentUser,
+      required this.mapData,
+      required this.refreshFunction});
 
   @override
   State<LargeScreen> createState() => _LargeScreenState();
@@ -46,10 +56,18 @@ class _LargeScreenState extends State<LargeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: (isLoading)
-          ? const Center(
-              child: CircularProgressIndicator(),
-            )
+        body: RefreshIndicator(
+      onRefresh: () async {
+        setState(() {
+          isLoading = true;
+        });
+        await widget.refreshFunction();
+        setState(() {
+          isLoading = false;
+        });
+      },
+      child: (isLoading)
+          ? Container()
           : (mapData.isEmpty)
               ? Center(
                   child: Padding(
@@ -64,43 +82,48 @@ class _LargeScreenState extends State<LargeScreen> {
                   ),
                 )
               : SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      if (currentUser.userType == UserType.Patient)
-                        ...mapData.map((therapistInfo) {
-                          TheraportalUser therapist =
-                              therapistInfo['therapist'];
-                          String? groupName = therapistInfo['group_name'];
-                          Session? nextSession = therapistInfo['next_session'];
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  child: SizedBox(
+                    height: MediaQuery.of(context).size.height,
+                    child: Column(
+                      children: [
+                        if (currentUser.userType == UserType.Patient)
+                          ...mapData.map((therapistInfo) {
+                            TheraportalUser therapist =
+                                therapistInfo['therapist'];
+                            String? groupName = therapistInfo['group_name'];
+                            Session? nextSession =
+                                therapistInfo['next_session'];
 
-                          return TherapistProfileCard(
-                            firstName: therapist.firstName,
-                            lastName: therapist.lastName,
-                            therapistType: therapist.therapistType.toString(),
-                            organization: groupName,
-                            nextScheduledSession: nextSession,
-                            therapistId: therapist.id,
-                          );
-                        })
-                      else if (currentUser.userType == UserType.Therapist)
-                        ...mapData.map((patientInfo) {
-                          TheraportalUser patient = patientInfo['patient'];
-                          String? groupName = patientInfo['group_name'];
-                          Session? nextSession = patientInfo['next_session'];
+                            return TherapistProfileCard(
+                              firstName: therapist.firstName,
+                              lastName: therapist.lastName,
+                              therapistType: therapist.therapistType.toString(),
+                              organization: groupName,
+                              nextScheduledSession: nextSession,
+                              therapistId: therapist.id,
+                            );
+                          })
+                        else if (currentUser.userType == UserType.Therapist)
+                          ...mapData.map((patientInfo) {
+                            TheraportalUser patient = patientInfo['patient'];
+                            String? groupName = patientInfo['group_name'];
+                            Session? nextSession = patientInfo['next_session'];
 
-                          return PatientProfileCard(
-                            firstName: patient.firstName,
-                            lastName: patient.lastName,
-                            dateOfBirth: patient.dateOfBirth!.toDate(),
-                            organization: groupName,
-                            nextScheduledSession: nextSession,
-                            patientId: patient.id,
-                          );
-                        }),
-                    ],
+                            return PatientProfileCard(
+                              firstName: patient.firstName,
+                              lastName: patient.lastName,
+                              dateOfBirth: patient.dateOfBirth!.toDate(),
+                              organization: groupName,
+                              nextScheduledSession: nextSession,
+                              patientId: patient.id,
+                            );
+                          }),
+                      ],
+                    ),
                   ),
                 ),
-    );
+    ));
   }
 }
 
@@ -108,8 +131,13 @@ class HomePage extends StatelessWidget {
   static const Key pageKey = Key("Home Page");
   final TheraportalUser currentUser;
   final List<Map<String, dynamic>> mapData;
+  final Future<void> Function() refreshFunction;
 
-  const HomePage({super.key, required this.currentUser, required this.mapData});
+  const HomePage(
+      {super.key,
+      required this.currentUser,
+      required this.mapData,
+      required this.refreshFunction});
 
   @override
   Widget build(BuildContext context) {
@@ -118,6 +146,7 @@ class HomePage extends StatelessWidget {
       body: Body(
         currentUser: currentUser,
         mapData: mapData,
+        refreshFunction: refreshFunction,
       ),
     );
   }

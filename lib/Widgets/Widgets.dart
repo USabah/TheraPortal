@@ -5,6 +5,7 @@ export 'AuthPopup.dart';
 export 'BottomChatBar.dart';
 export 'CalendarTableView.dart';
 export 'ChatContainer.dart';
+export 'FieldWidget.dart';
 export "MessageCard.dart";
 export 'PatientProfileCard.dart';
 export 'ReceivedMessage.dart';

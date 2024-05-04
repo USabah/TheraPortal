@@ -25,6 +25,7 @@ class TherapistProfileCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
+      color: const Color.fromARGB(255, 254, 157, 151),
       child: ListTile(
         contentPadding:
             const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
@@ -32,14 +33,24 @@ class TherapistProfileCard extends StatelessWidget {
           Icons.medical_services,
           size: MediaQuery.of(context).size.height * 0.06,
         ),
-        title: Text('$firstName ${lastName[0]}.'),
+        title: Text(
+          '$firstName ${lastName[0]}.',
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Therapist Type: $therapistType'),
-            Text('Organization: ${organization ?? "None"}'),
+            Text(
+              'Therapist Type: $therapistType',
+              style: const TextStyle(color: Colors.black),
+            ),
+            Text(
+              'Organization: ${organization ?? "None"}',
+              style: const TextStyle(color: Colors.black),
+            ),
             Text(
               'Next Session: ${nextScheduledSession != null ? DateFormat('EEEE \'at\' h:mma \'(\'M/d/yy\')\'').format(nextScheduledSession!.getSessionStartTime()) : "Not Scheduled"}',
+              style: const TextStyle(color: Colors.black),
             ),
           ],
         ),

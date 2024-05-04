@@ -11,13 +11,15 @@ class CalendarTableView extends StatefulWidget {
   final TheraportalUser currentUser;
   final Function(List<Session>) onUpdateSessions;
   final List<Map<String, dynamic>> mapData;
+  final Future<void> Function() refreshFunction;
 
   const CalendarTableView(
       {super.key,
       required this.sessions,
       required this.currentUser,
       required this.onUpdateSessions,
-      required this.mapData});
+      required this.mapData,
+      required this.refreshFunction});
 
   @override
   State<CalendarTableView> createState() => _CalendarTableViewState();
@@ -112,6 +114,7 @@ class _CalendarTableViewState extends State<CalendarTableView> {
                                     fullSessionList: false,
                                     daySelected: currentFocus,
                                     currentUser: widget.currentUser,
+                                    refreshFunction: widget.refreshFunction,
                                   )));
                         }
                       : null,
@@ -157,6 +160,11 @@ class _CalendarTableViewState extends State<CalendarTableView> {
                                 if (session != null) {
                                   widget.sessions.add(session);
                                   Session.sortSessions(widget.sessions);
+                                  //EDIT sortSessions to work with isWeekly (unless it already does)
+                                  if (widget.sessions[0] == session) {
+                                    print("New next session");
+                                    //update mapData
+                                  }
                                   widget.onUpdateSessions(widget.sessions);
                                 }
                               }
@@ -181,7 +189,8 @@ class _CalendarTableViewState extends State<CalendarTableView> {
   }
 
   bool _hasSession(DateTime day) {
-    return widget.sessions.any((session) => isSameDay(session.dateTime, day));
+    return widget.sessions
+        .any((session) => isSameDay(session.getSessionStartTime(), day));
   }
 
   List<Session> _sessionsOnDay(DateTime day) {

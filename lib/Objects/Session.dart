@@ -104,8 +104,8 @@ class Session {
           patient: patient,
           therapist: therapist,
           isWeekly: true,
-          dayOfWeek: map['day_of_week'],
-          timeOfDay: map['time_of_day'],
+          dayOfWeek: DayOfWeek.fromString(map['day_of_week'])!,
+          timeOfDay: Session.parseTimeOfDay(map['time_of_day']!),
           additionalInfo: map['additional_info'],
           durationInMinutes: map['duration_in_minutes']);
     } else {
@@ -131,12 +131,38 @@ class Session {
     };
   }
 
+  static TimeOfDay parseTimeOfDay(String timeString) {
+    //remove the "TimeOfDay(" and ")" parts from the string
+    String time = timeString.replaceAll('TimeOfDay(', '').replaceAll(')', '');
+    //split the string into hours and minutes
+    List<String> parts = time.split(':');
+    int hour = int.parse(parts[0]);
+    int minute = int.parse(parts[1]);
+    return TimeOfDay(hour: hour, minute: minute);
+  }
+
   static bool isCurrentDayOrLater(DateTime selectedDay) {
     final now = DateTime.now().toLocal();
     final selectedDayLocal = selectedDay.toLocal();
     return selectedDayLocal.compareTo(now) >= 0 ||
         isSameDay(selectedDayLocal, now) ||
         isSameDay(selectedDay, now);
+  }
+
+  //get the next upcoming session for a patient and therapist
+  static Session? getNextSession(
+      List<Session> sessions, String patientId, String therapistId) {
+    DateTime now = DateTime.now();
+    for (int i = 0; i < sessions.length; i++) {
+      Session session = sessions[i];
+      if (session.getSessionStartTime().isAfter(now) &&
+          session.patient.id == patientId &&
+          session.therapist.id == therapistId) {
+        return session;
+      }
+    }
+    //if no upcoming session is found, return null
+    return null;
   }
 
   static DayOfWeek getDayOfWeek(int day) {
@@ -172,4 +198,16 @@ enum DayOfWeek {
 
   @override
   String toString() => name;
+
+  static DayOfWeek? fromString(String a) {
+    return {
+      "Sunday": Sunday,
+      "Monday": Monday,
+      "Tuesday": Tuesday,
+      "Wednesday": Wednesday,
+      "Thursday": Thursday,
+      "Friday": Friday,
+      "Saturday": Saturday
+    }[a];
+  }
 }

@@ -10,12 +10,14 @@ class Body extends StatelessWidget {
   final List<Session> userSessions;
   final List<Map<String, dynamic>> mapData;
   final Function(List<Session>) onUpdateSessions;
+  final Future<void> Function() refreshFunction;
   const Body(
       {super.key,
       required this.currentUser,
       required this.userSessions,
       required this.onUpdateSessions,
-      required this.mapData});
+      required this.mapData,
+      required this.refreshFunction});
 
   @override
   Widget build(BuildContext context) {
@@ -25,6 +27,7 @@ class Body extends StatelessWidget {
         userSessions: userSessions,
         onUpdateSessions: onUpdateSessions,
         mapData: mapData,
+        refreshFunction: refreshFunction,
       ),
     );
   }
@@ -35,12 +38,14 @@ class LargeScreen extends StatefulWidget {
   List<Session> userSessions;
   final Function(List<Session>) onUpdateSessions;
   final List<Map<String, dynamic>> mapData;
+  final Future<void> Function() refreshFunction;
   LargeScreen(
       {super.key,
       required this.currentUser,
       required this.userSessions,
       required this.onUpdateSessions,
-      required this.mapData});
+      required this.mapData,
+      required this.refreshFunction});
 
   @override
   State<LargeScreen> createState() => _LargeScreenState();
@@ -91,29 +96,16 @@ class _LargeScreenState extends State<LargeScreen>
           children: [
             CalendarTableView(
               sessions: widget.userSessions,
-              // sessions: [
-              //   Session(
-              //       dateTime: DateTime(2024, 5, 8),
-              //       additionalInfo: null,
-              //       isWeekly: false,
-              //       patient: currentUser,
-              //       therapist: currentUser),
-              // ],
               currentUser: widget.currentUser,
-              onUpdateSessions: localUpdateSessions, mapData: widget.mapData,
+              onUpdateSessions: localUpdateSessions,
+              mapData: widget.mapData,
+              refreshFunction: widget.refreshFunction,
             ),
             ScheduleListPage(
-              // sessions: [
-              //   Session(
-              //       dateTime: DateTime(2024, 5, 8),
-              //       additionalInfo: null,
-              //       isWeekly: false,
-              //       patient: currentUser,
-              //       therapist: currentUser),
-              // ],
               sessions: widget.userSessions,
               fullSessionList: true,
               currentUser: currentUser,
+              refreshFunction: widget.refreshFunction,
             ),
           ],
         )),
@@ -128,13 +120,15 @@ class SchedulePage extends StatelessWidget {
   final List<Session> userSessions;
   final Function(List<Session>) onUpdateSessions;
   final List<Map<String, dynamic>> mapData;
+  final Future<void> Function() refreshFunction;
 
   const SchedulePage(
       {super.key,
       required this.currentUser,
       required this.userSessions,
       required this.onUpdateSessions,
-      required this.mapData});
+      required this.mapData,
+      required this.refreshFunction});
 
   @override
   Widget build(BuildContext context) {
@@ -145,6 +139,7 @@ class SchedulePage extends StatelessWidget {
         userSessions: userSessions,
         onUpdateSessions: onUpdateSessions,
         mapData: mapData,
+        refreshFunction: refreshFunction,
       ),
     );
   }
