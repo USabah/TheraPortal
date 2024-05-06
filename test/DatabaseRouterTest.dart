@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:theraportal/Objects/User.dart';
+import 'package:theraportal/Objects/TheraportalUser.dart';
 import 'package:theraportal/Utilities/DatabaseRouter.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 

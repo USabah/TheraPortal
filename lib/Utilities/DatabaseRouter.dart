@@ -1,8 +1,8 @@
 import 'dart:async';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:theraportal/Objects/Exercise.dart';
 import 'package:theraportal/Objects/Session.dart';
-import 'package:theraportal/Objects/User.dart';
+import 'package:theraportal/Objects/TheraportalUser.dart';
 
 class DatabaseRouter {
   FirebaseFirestore _firestore;
@@ -536,11 +536,11 @@ class DatabaseRouter {
       TheraportalUser patient, TheraportalUser therapist) {
     return snapshot.docs.map((doc) {
       return Session.fromMap(
-          doc.data() as Map<String, dynamic>, patient, therapist);
+          doc.data() as Map<String, dynamic>, patient, therapist, doc.id);
     }).toList();
   }
 
-  Future<bool> addSession(Session session) async {
+  Future<String?> addSession(Session session) async {
     String patientId = session.patient.id;
     String therapistId = session.therapist.id;
     try {
@@ -554,18 +554,106 @@ class DatabaseRouter {
       if (assignmentQuery.docs.isNotEmpty) {
         String assignmentId = assignmentQuery.docs.first.id;
 
-        await FirebaseFirestore.instance
+        DocumentReference sessionRef = await FirebaseFirestore.instance
             .collection('Assignments')
             .doc(assignmentId)
             .collection('ScheduledSessions')
             .add(session.toMap());
+
+        // Return the document ID of the added session
+        return sessionRef.id;
       } else {
+        return null;
+      }
+    } catch (e) {
+      print(e);
+      rethrow;
+    }
+  }
+
+  Future<bool> updateSession(Session session) async {
+    try {
+      String patientId = session.patient.id;
+      String therapistId = session.therapist.id;
+      QuerySnapshot assignmentQuery = await FirebaseFirestore.instance
+          .collection('Assignments')
+          .where('patient_id', isEqualTo: patientId)
+          .where('therapist_id', isEqualTo: therapistId)
+          .get();
+      //check if assignment exists
+      if (assignmentQuery.docs.isNotEmpty) {
+        String assignmentId = assignmentQuery.docs.first.id;
+        DocumentSnapshot sessionSnapshot = await FirebaseFirestore.instance
+            .collection('Assignments')
+            .doc(assignmentId)
+            .collection('ScheduledSessions')
+            .doc(session.id) // Query directly by the document ID
+            .get();
+        if (sessionSnapshot.exists) {
+          //update the session document with new data
+          await sessionSnapshot.reference.update(session.toMap());
+          return true;
+        } else {
+          print("session doesn't exist");
+          return false;
+        }
+      } else {
+        print("assignment doesn't exist");
         return false;
       }
     } catch (e) {
       print(e);
       rethrow;
     }
-    return true;
+  }
+
+  Future<bool> removeSession(Session session) async {
+    try {
+      String patientId = session.patient.id;
+      String therapistId = session.therapist.id;
+      QuerySnapshot assignmentQuery = await FirebaseFirestore.instance
+          .collection('Assignments')
+          .where('patient_id', isEqualTo: patientId)
+          .where('therapist_id', isEqualTo: therapistId)
+          .get();
+
+      //check if assignment exists
+      if (assignmentQuery.docs.isNotEmpty) {
+        String assignmentId = assignmentQuery.docs.first.id;
+        DocumentReference sessionRef = FirebaseFirestore.instance
+            .collection('Assignments')
+            .doc(assignmentId)
+            .collection('ScheduledSessions')
+            .doc(session.id);
+
+        DocumentSnapshot sessionSnapshot = await sessionRef.get();
+        if (sessionSnapshot.exists) {
+          //remove session
+          await sessionRef.delete();
+          return true;
+        } else {
+          print("Session doesn't exist");
+          return false;
+        }
+      } else {
+        print("Assignment doesn't exist");
+        return false;
+      }
+    } catch (e) {
+      print(e);
+      rethrow;
+    }
+  }
+
+  Future<String?> addExercise(Exercise newExercise) async {
+    try {
+      CollectionReference exerciseRef = _firestore.collection('Exercises');
+      DocumentReference docRef = await exerciseRef.add(newExercise.toMap());
+      await docRef.update({'id': docRef.id});
+      return docRef.id;
+    } catch (e) {
+      print(e);
+      rethrow;
+    }
   }
 }

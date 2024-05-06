@@ -5,13 +5,15 @@ class FieldWidget extends StatelessWidget {
   final String label;
   final String value;
   final VoidCallback onPressed;
+  final String? errorText; // Optional error text string
 
   const FieldWidget({
-    super.key,
+    Key? key,
     required this.label,
     required this.value,
     required this.onPressed,
-  });
+    this.errorText, // Initialize the optional error text
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -23,29 +25,40 @@ class FieldWidget extends StatelessWidget {
           border: Border.all(color: Colors.grey),
           borderRadius: BorderRadius.circular(8.0),
         ),
-        child: Row(
+        child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              '$label ',
-              style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Styles.beige),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                value,
-                style: const TextStyle(
-                  fontSize: 16,
-
-                  decoration: TextDecoration
-                      .underline, // Add underline to indicate clickable text
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '$label ',
+                  style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Styles.beige),
                 ),
-                overflow: TextOverflow.ellipsis,
-              ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    value,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      decoration: TextDecoration.underline,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
             ),
+            if (errorText != null) // Show error text if it's not null
+              Text(
+                errorText!,
+                style: const TextStyle(
+                  color: Colors.red,
+                  fontSize: 12,
+                ),
+              ),
           ],
         ),
       ),

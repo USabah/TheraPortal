@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:theraportal/Objects/User.dart';
+import 'package:theraportal/Objects/TheraportalUser.dart';
 import 'package:theraportal/Utilities/DatabaseRouter.dart';
 import 'package:theraportal/Widgets/Widgets.dart';
 

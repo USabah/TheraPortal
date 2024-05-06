@@ -1,22 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:theraportal/Objects/Session.dart';
-import 'package:theraportal/Objects/User.dart';
+import 'package:theraportal/Objects/TheraportalUser.dart';
+import 'package:theraportal/Pages/ScheduleSessionForm.dart';
+import 'package:theraportal/Utilities/DatabaseRouter.dart';
 import 'package:theraportal/Widgets/Widgets.dart';
 
 class Body extends StatelessWidget {
   final List<Session> sessions;
+  final List<Map<String, dynamic>> mapData;
   final bool fullSessionList;
   final TheraportalUser currentUser;
   final DateTime? day;
   final Future<void> Function() refreshFunction;
+  final Function(List<Session>) onUpdateSessions;
   const Body(
       {super.key,
       required this.sessions,
       required this.fullSessionList,
       this.day,
       required this.currentUser,
-      required this.refreshFunction});
+      required this.refreshFunction,
+      required this.mapData,
+      required this.onUpdateSessions});
 
   @override
   Widget build(BuildContext context) {
@@ -27,6 +33,8 @@ class Body extends StatelessWidget {
         day: day,
         currentUser: currentUser,
         refreshFunction: refreshFunction,
+        mapData: mapData,
+        onUpdateSessions: onUpdateSessions,
       ),
     );
   }
@@ -38,13 +46,17 @@ class LargeScreen extends StatefulWidget {
   final bool fullSessionList;
   final DateTime? day;
   final Future<void> Function() refreshFunction;
+  final List<Map<String, dynamic>> mapData;
+  final Function(List<Session>) onUpdateSessions;
   const LargeScreen(
       {super.key,
       required this.sessions,
       required this.fullSessionList,
       this.day,
       required this.currentUser,
-      required this.refreshFunction});
+      required this.refreshFunction,
+      required this.mapData,
+      required this.onUpdateSessions});
 
   @override
   _LargeScreenState createState() => _LargeScreenState();
@@ -52,19 +64,62 @@ class LargeScreen extends StatefulWidget {
 
 class _LargeScreenState extends State<LargeScreen> {
   bool isLoading = false;
+  DatabaseRouter databaseRouter = DatabaseRouter();
 
-  @override
-  void initState() {
-    super.initState();
+  Future<void> onEditCallback(
+      BuildContext context, Session sessionToEdit) async {
+    Session? editedSession = await Navigator.of(context).push(MaterialPageRoute(
+        builder: (context) => ScheduleSessionForm(
+              currentUser: widget.currentUser,
+              day: null,
+              mapData: widget.mapData,
+              scheduledSessions: widget.sessions,
+              sessionToEdit: sessionToEdit,
+            ))) as Session?;
+    if (editedSession != null) {
+      //replace sessionToEdit in widget.sessions with edittedSession
+      int index =
+          widget.sessions.indexWhere((session) => session == sessionToEdit);
+      if (index != -1) {
+        widget.sessions[index] = editedSession;
+        widget.onUpdateSessions(widget.sessions);
+        setState(() {});
+      }
+    }
   }
 
-  @override
-  void dispose() {
-    super.dispose();
+  Future<void> onRemoveCallback(Session sessionToRemove) async {
+    setState(() {
+      isLoading = true;
+    });
+    bool success = await databaseRouter.removeSession(sessionToRemove);
+    if (success) {
+      widget.sessions.removeWhere((session) => session == sessionToRemove);
+      alertFunction(
+          context: context,
+          title: "Removed Successfully",
+          content: "Removed the session successfully.",
+          onPressed: () => Navigator.of(context).pop(),
+          btnText: "Ok");
+    } else {}
+    setState(() {
+      isLoading = false;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    //group sessions by date
+    final sessionsByDate = <String, List<Session>>{};
+    for (final session in widget.sessions) {
+      final date =
+          DateFormat('EEEE, MMMM dd').format(session.getSessionStartTime());
+      if (!sessionsByDate.containsKey(date)) {
+        sessionsByDate[date] = [];
+      }
+      sessionsByDate[date]!.add(session);
+    }
+
     return Scaffold(
       appBar: widget.fullSessionList
           ? null
@@ -86,31 +141,51 @@ class _LargeScreenState extends State<LargeScreen> {
             ? Container()
             : SingleChildScrollView(
                 physics: const AlwaysScrollableScrollPhysics(),
-                child: SizedBox(
-                  height: MediaQuery.of(context).size.height * 0.7,
-                  child: widget.sessions.isEmpty
-                      ? Center(
-                          child: Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Text(
-                              widget.currentUser.userType == UserType.Patient
-                                  ? "You have no scheduled sessions at the moment."
-                                  : "You have no scheduled sessions at the moment. To schedule a session, go to the calendar, select a date, and click on the \"Schedule Session\" button.",
-                              style: const TextStyle(color: Styles.lightGrey),
-                              textAlign: TextAlign.center,
-                            ),
+                child: widget.sessions.isEmpty
+                    ? Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Text(
+                            widget.currentUser.userType == UserType.Patient
+                                ? "You have no scheduled sessions at the moment."
+                                : "You have no scheduled sessions at the moment. To schedule a session, go to the calendar, select a date, and click on the \"Schedule Session\" button.",
+                            style: const TextStyle(color: Styles.lightGrey),
+                            textAlign: TextAlign.center,
                           ),
-                        )
-                      : Column(
-                          children: [
-                            for (final session in widget.sessions)
-                              SessionCard(
-                                session: session,
-                                userType: widget.currentUser.userType,
-                              ),
-                          ],
                         ),
-                ),
+                      )
+                    : Column(
+                        children: [
+                          for (final date in sessionsByDate.keys)
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                if (widget.fullSessionList)
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 8.0, horizontal: 16.0),
+                                    child: Text(
+                                      date,
+                                      style: const TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                  ),
+                                for (final session in sessionsByDate[date]!)
+                                  SessionCard(
+                                    session: session,
+                                    userType: widget.currentUser.userType,
+                                    onUpdateSession: onEditCallback,
+                                    onRemoveSession: onRemoveCallback,
+                                  ),
+                              ],
+                            ),
+                          SizedBox(
+                            //allows for sliding card without clipping into scaffold
+                            height: MediaQuery.of(context).size.height * 0.18,
+                          )
+                        ],
+                      ),
               ),
       ),
     );
@@ -123,6 +198,8 @@ class ScheduleListPage extends StatelessWidget {
   final DateTime? daySelected;
   final TheraportalUser currentUser;
   final Future<void> Function() refreshFunction;
+  final List<Map<String, dynamic>> mapData;
+  final Function(List<Session>) onUpdateSessions;
   static const Key pageKey = Key("Schedule List Page");
 
   const ScheduleListPage(
@@ -131,7 +208,9 @@ class ScheduleListPage extends StatelessWidget {
       required this.fullSessionList,
       this.daySelected,
       required this.currentUser,
-      required this.refreshFunction});
+      required this.refreshFunction,
+      required this.mapData,
+      required this.onUpdateSessions});
 
   @override
   Widget build(BuildContext context) {
@@ -142,6 +221,8 @@ class ScheduleListPage extends StatelessWidget {
         day: daySelected,
         currentUser: currentUser,
         refreshFunction: refreshFunction,
+        mapData: mapData,
+        onUpdateSessions: onUpdateSessions,
       ),
     );
   }

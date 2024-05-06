@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:theraportal/Objects/Session.dart';
-import 'package:theraportal/Objects/User.dart';
+import 'package:theraportal/Objects/TheraportalUser.dart';
 import 'package:theraportal/Pages/ScheduleListPage.dart';
 import 'package:theraportal/Pages/ScheduleSessionForm.dart';
 import 'package:theraportal/Widgets/Widgets.dart';
@@ -115,6 +115,8 @@ class _CalendarTableViewState extends State<CalendarTableView> {
                                     daySelected: currentFocus,
                                     currentUser: widget.currentUser,
                                     refreshFunction: widget.refreshFunction,
+                                    mapData: widget.mapData,
+                                    onUpdateSessions: widget.onUpdateSessions,
                                   )));
                         }
                       : null,
@@ -153,16 +155,14 @@ class _CalendarTableViewState extends State<CalendarTableView> {
                                     currentUser: widget.currentUser,
                                     day: currentFocus,
                                     sessionToEdit: null,
-                                    patientData: widget.mapData,
+                                    mapData: widget.mapData,
                                     scheduledSessions: widget.sessions,
                                   ),
                                 )) as Session?;
                                 if (session != null) {
                                   widget.sessions.add(session);
                                   Session.sortSessions(widget.sessions);
-                                  //EDIT sortSessions to work with isWeekly (unless it already does)
                                   if (widget.sessions[0] == session) {
-                                    print("New next session");
                                     //update mapData
                                   }
                                   widget.onUpdateSessions(widget.sessions);

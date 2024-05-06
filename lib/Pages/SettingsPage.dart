@@ -1,14 +1,24 @@
 import 'package:flutter/material.dart';
-import 'package:theraportal/Objects/User.dart';
+import 'package:theraportal/Objects/Exercise.dart';
+import 'package:theraportal/Objects/Session.dart';
+import 'package:theraportal/Objects/TheraportalUser.dart';
 import 'package:theraportal/Pages/AccountInformationPage.dart';
 import 'package:theraportal/Pages/AddAssignmentPage.dart';
+import 'package:theraportal/Pages/ExerciseCreatorForm.dart';
 import 'package:theraportal/Utilities/AuthRouter.dart';
 import 'package:theraportal/Widgets/Widgets.dart';
 
 class Body extends StatelessWidget {
   final TheraportalUser currentUser;
   final List<Map<String, dynamic>> mapData;
-  const Body({super.key, required this.currentUser, required this.mapData});
+  final List<Exercise> exerciseCache;
+  final List<Session> userSessions;
+  const Body(
+      {super.key,
+      required this.currentUser,
+      required this.mapData,
+      required this.exerciseCache,
+      required this.userSessions});
 
   @override
   Widget build(BuildContext context) {
@@ -16,6 +26,8 @@ class Body extends StatelessWidget {
       largeScreen: LargeScreen(
         currentUser: currentUser,
         mapData: mapData,
+        exerciseCache: exerciseCache,
+        userSessions: userSessions,
       ),
     );
   }
@@ -25,7 +37,14 @@ class LargeScreen extends StatelessWidget {
   final TheraportalUser currentUser;
   List<Map<String, dynamic>> mapData;
   bool isPoppingToLandingScreen = false;
-  LargeScreen({super.key, required this.currentUser, required this.mapData});
+  final List<Exercise> exerciseCache;
+  final List<Session> userSessions;
+  LargeScreen(
+      {super.key,
+      required this.currentUser,
+      required this.mapData,
+      required this.exerciseCache,
+      required this.userSessions});
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +59,7 @@ class LargeScreen extends StatelessWidget {
             return;
           }
           if (!isPoppingToLandingScreen) {
-            Navigator.of(context).pop(mapData);
+            Navigator.of(context).pop([mapData, exerciseCache, userSessions]);
           } else {
             Navigator.of(context).pop();
           }
@@ -116,16 +135,22 @@ class LargeScreen extends StatelessWidget {
                                 fontWeight: FontWeight.bold),
                           )),
                           onTap: () async {
-                            List<Map<String, dynamic>>? tempMapData =
-                                await showDialog<List<Map<String, dynamic>>>(
+                            List<dynamic>? tempData =
+                                await showDialog<List<dynamic>?>(
                               context: context,
                               builder: (context) => RemoveAssignmentDialog(
                                 mapData: mapData,
                                 currentUserType: currentUser.userType,
                               ),
                             );
-                            if (tempMapData != null) {
+                            if (tempData != null) {
+                              List<Map<String, dynamic>> tempMapData =
+                                  tempData[0];
+                              String assignmentId = tempData[1];
                               mapData = tempMapData;
+                              userSessions.removeWhere((session) =>
+                                  session.patient.id == currentUser.id &&
+                                  session.therapist.id == assignmentId);
                             }
                           },
                         ),
@@ -182,21 +207,62 @@ class LargeScreen extends StatelessWidget {
                                 fontWeight: FontWeight.bold),
                           )),
                           onTap: () async {
-                            List<Map<String, dynamic>>? tempMapData =
-                                await showDialog<List<Map<String, dynamic>>>(
+                            List<dynamic>? tempData =
+                                await showDialog<List<dynamic>?>(
                               context: context,
                               builder: (context) => RemoveAssignmentDialog(
                                 mapData: mapData,
                                 currentUserType: currentUser.userType,
                               ),
                             );
-                            if (tempMapData != null) {
+                            if (tempData != null) {
+                              List<Map<String, dynamic>> tempMapData =
+                                  tempData[0];
+                              String assignmentId = tempData[1];
                               mapData = tempMapData;
+                              userSessions.removeWhere((session) =>
+                                  session.patient.id == assignmentId &&
+                                  session.therapist.id == currentUser.id);
+
+                              ///remove sessions from the patient as well
                             }
                           },
                         ),
                       ),
-                    )
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 8.0, horizontal: 16.0),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Styles.darkGreyBlue,
+                          borderRadius: BorderRadius.circular(21.0),
+                        ),
+                        child: ListTile(
+                          title: const Center(
+                              child: Text(
+                            'Create Exercise',
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold),
+                          )),
+                          onTap: () async {
+                            Exercise? exercise = await Navigator.of(context)
+                                .push(MaterialPageRoute(
+                                    builder: (context) => ExerciseCreatorForm(
+                                          numExercisesCreated:
+                                              exerciseCache.length -
+                                                  ExerciseConstants
+                                                      .numDefaultExercises,
+                                          user: currentUser,
+                                        ))) as Exercise?;
+                            if (exercise != null) {
+                              exerciseCache.add(exercise);
+                            }
+                          },
+                        ),
+                      ),
+                    ),
                   ],
                 ],
               ),
@@ -306,10 +372,16 @@ class LargeScreen extends StatelessWidget {
 class SettingsPage extends StatelessWidget {
   final TheraportalUser currentUser;
   final List<Map<String, dynamic>> mapData;
+  final List<Exercise> exerciseCache;
+  final List<Session> userSessions;
   static const Key pageKey = Key("Settings Page");
 
   const SettingsPage(
-      {super.key, required this.currentUser, required this.mapData});
+      {super.key,
+      required this.currentUser,
+      required this.mapData,
+      required this.exerciseCache,
+      required this.userSessions});
 
   @override
   Widget build(BuildContext context) {
@@ -318,6 +390,8 @@ class SettingsPage extends StatelessWidget {
       body: Body(
         currentUser: currentUser,
         mapData: mapData,
+        exerciseCache: exerciseCache,
+        userSessions: userSessions,
       ),
     );
   }

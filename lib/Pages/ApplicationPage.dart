@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:theraportal/Objects/Exercise.dart';
+import 'package:theraportal/Objects/ExerciseAssignment.dart';
 import 'package:theraportal/Objects/Session.dart';
-import 'package:theraportal/Objects/User.dart';
+import 'package:theraportal/Objects/TheraportalUser.dart';
 import 'package:theraportal/Pages/HomePage.dart';
 import 'package:theraportal/Pages/MessagesPage.dart';
 import 'package:theraportal/Pages/SchedulePage.dart';
 import 'package:theraportal/Pages/SettingsPage.dart';
+// import 'package:theraportal/Pages/TestingPage.dart';
 import 'package:theraportal/Utilities/AuthRouter.dart';
 import 'package:theraportal/Utilities/DatabaseRouter.dart';
 import 'package:theraportal/Widgets/Widgets.dart';
@@ -37,6 +40,10 @@ class _LargeScreenState extends State<LargeScreen> {
   List<Widget Function()> pages = [];
   List<Map<String, dynamic>> userMapData = [];
   List<Session> userSessions = [];
+  List<Exercise> exerciseCache =
+      []; //cache all exercises (if therapist) but load media only when user opens view
+  Map<String, List<ExerciseAssignment>>?
+      patientExercises; //patient_id to assignments
 
   @override
   void initState() {
@@ -69,6 +76,7 @@ class _LargeScreenState extends State<LargeScreen> {
     try {
       userSessions = await databaseRouter.getAllUserSessions(currentUser);
       Session.sortSessions(userSessions);
+      Session.removeOldSessions(userSessions);
     } catch (e) {
       print('Error loading user sessions: $e');
     }
@@ -156,17 +164,24 @@ class _LargeScreenState extends State<LargeScreen> {
         actions: [
           IconButton(
             onPressed: () async {
-              // Navigator.of(context)
-              //     .push(MaterialPageRoute(builder: (context) => TestingPage()));
-              List<Map<String, dynamic>>? tempMapData =
+              // Navigator.of(context).push(
+              //     MaterialPageRoute(builder: (context) => const TestingPage()));
+              List<dynamic>? tempData =
                   await Navigator.of(context).push(MaterialPageRoute(
                       builder: (context) => SettingsPage(
                             currentUser: currentUser,
                             mapData: userMapData,
-                          ))) as List<Map<String, dynamic>>?;
-              if (tempMapData != null) {
+                            exerciseCache: exerciseCache,
+                            userSessions: userSessions,
+                          ))) as List<dynamic>?;
+              if (tempData != null) {
+                List<Map<String, dynamic>> tempMapData = tempData[0];
+                List<Exercise> tempExerciseCache = tempData[1];
+                List<Session> tempSessions = tempData[2];
                 setState(() {
                   userMapData = tempMapData;
+                  exerciseCache = tempExerciseCache;
+                  userSessions = tempSessions;
                 });
               }
             },

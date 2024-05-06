@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:theraportal/Objects/Session.dart';
-import 'package:theraportal/Objects/User.dart';
+import 'package:theraportal/Objects/TheraportalUser.dart';
 import 'package:theraportal/Utilities/DatabaseRouter.dart';
 import 'package:theraportal/Widgets/Widgets.dart';
 
@@ -83,44 +83,44 @@ class _LargeScreenState extends State<LargeScreen> {
                 )
               : SingleChildScrollView(
                   physics: const AlwaysScrollableScrollPhysics(),
-                  child: SizedBox(
-                    height: MediaQuery.of(context).size.height,
-                    child: Column(
-                      children: [
-                        if (currentUser.userType == UserType.Patient)
-                          ...mapData.map((therapistInfo) {
-                            TheraportalUser therapist =
-                                therapistInfo['therapist'];
-                            String? groupName = therapistInfo['group_name'];
-                            Session? nextSession =
-                                therapistInfo['next_session'];
+                  child: Column(
+                    children: [
+                      if (currentUser.userType == UserType.Patient)
+                        ...mapData.map((therapistInfo) {
+                          TheraportalUser therapist =
+                              therapistInfo['therapist'];
+                          String? groupName = therapistInfo['group_name'];
+                          Session? nextSession = therapistInfo['next_session'];
 
-                            return TherapistProfileCard(
-                              firstName: therapist.firstName,
-                              lastName: therapist.lastName,
-                              therapistType: therapist.therapistType.toString(),
-                              organization: groupName,
-                              nextScheduledSession: nextSession,
-                              therapistId: therapist.id,
-                            );
-                          })
-                        else if (currentUser.userType == UserType.Therapist)
-                          ...mapData.map((patientInfo) {
-                            TheraportalUser patient = patientInfo['patient'];
-                            String? groupName = patientInfo['group_name'];
-                            Session? nextSession = patientInfo['next_session'];
+                          return TherapistProfileCard(
+                            firstName: therapist.firstName,
+                            lastName: therapist.lastName,
+                            therapistType: therapist.therapistType.toString(),
+                            organization: groupName,
+                            nextScheduledSession: nextSession,
+                            therapistId: therapist.id,
+                          );
+                        })
+                      else if (currentUser.userType == UserType.Therapist)
+                        ...mapData.map((patientInfo) {
+                          TheraportalUser patient = patientInfo['patient'];
+                          String? groupName = patientInfo['group_name'];
+                          Session? nextSession = patientInfo['next_session'];
 
-                            return PatientProfileCard(
-                              firstName: patient.firstName,
-                              lastName: patient.lastName,
-                              dateOfBirth: patient.dateOfBirth!.toDate(),
-                              organization: groupName,
-                              nextScheduledSession: nextSession,
-                              patientId: patient.id,
-                            );
-                          }),
-                      ],
-                    ),
+                          return PatientProfileCard(
+                            firstName: patient.firstName,
+                            lastName: patient.lastName,
+                            dateOfBirth: patient.dateOfBirth!.toDate(),
+                            organization: groupName,
+                            nextScheduledSession: nextSession,
+                            patientId: patient.id,
+                          );
+                        }),
+                      SizedBox(
+                        //allows for sliding card without clipping into scaffold
+                        height: MediaQuery.of(context).size.height * 0.18,
+                      )
+                    ],
                   ),
                 ),
     ));

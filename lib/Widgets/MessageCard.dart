@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:theraportal/Objects/User.dart';
+import 'package:theraportal/Objects/TheraportalUser.dart';
 // import 'package:intl/intl.dart';
 import 'package:theraportal/Pages/CommunicationPage.dart'; // Import for date formatting
 

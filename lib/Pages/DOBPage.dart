@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:theraportal/Objects/User.dart';
+import 'package:theraportal/Objects/TheraportalUser.dart';
 import 'package:theraportal/Pages/RegistrationPage.dart';
 import 'package:theraportal/Widgets/Widgets.dart';
 import 'package:intl/intl.dart';

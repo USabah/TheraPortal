@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:theraportal/Objects/User.dart';
+import 'package:theraportal/Objects/TheraportalUser.dart';
 import 'package:theraportal/Pages/SignInPage.dart';
 import 'package:theraportal/Utilities/AuthRouter.dart';
 import 'package:theraportal/Utilities/DatabaseRouter.dart';
@@ -324,19 +324,12 @@ class _LargeScreenState extends State<LargeScreen> {
       } else {
         //create database entry for new user
         //first generate a user_reference_code
-        print("here1");
         userMap["user_reference_code"] = await generateReferenceCode();
-        print("here2");
         String userId = res.user.uid;
-        print("here3");
         userMap["userId"] = userId;
-        print("here4");
         userMap['date_created'] = Timestamp.now();
-        print("here5");
         TheraportalUser currentUser = TheraportalUser.fromMap(userMap);
-        print("here6");
         databaseRouter.addUser(currentUser);
-        print("here7");
         //send verification email
         await AuthRouter.login(userMap["email"], userMap["password"]);
         await AuthRouter.sendVerificationEmail();

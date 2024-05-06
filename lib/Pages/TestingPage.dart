@@ -34,13 +34,11 @@ class _LargeScreenState extends State<LargeScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const Text("Settings Page"),
-          ElevatedButton(
-              onPressed: () => AuthRouter.logout(), child: Text("logout")),
+          // ElevatedButton(
+          // onPressed: () => AuthRouter.logout(), child: Text("logout")),
           ElevatedButton(
               onPressed: () {
-                // DatabaseRouter()._createAssignment(
-                //     "i7o4zwqxgaSd6aEj3x01m4kD31s2",
-                //     "h2tD3YQD66XHEXp5Hy4pkGF2j4Z2");
+                GoogleDriveRouter().listFiles();
               },
               child: Text("test function")),
         ],

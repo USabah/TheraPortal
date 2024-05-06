@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:table_calendar/table_calendar.dart';
-import 'package:theraportal/Objects/User.dart';
+import 'package:theraportal/Objects/TheraportalUser.dart';
 import 'package:flutter/material.dart';
 
 class Session {
@@ -12,26 +12,29 @@ class Session {
   final String? additionalInfo;
   final bool isWeekly;
   final int durationInMinutes;
+  String? id;
 
-  Session({
-    required this.patient,
-    required this.therapist,
-    required this.isWeekly,
-    required this.dateTime,
-    required this.durationInMinutes,
-    this.additionalInfo,
-  })  : dayOfWeek = getDayOfWeek(dateTime!.weekday),
+  Session(
+      {required this.patient,
+      required this.therapist,
+      required this.isWeekly,
+      required this.dateTime,
+      required this.durationInMinutes,
+      this.additionalInfo,
+      this.id})
+      : dayOfWeek = getDayOfWeek(dateTime!.weekday),
         timeOfDay = TimeOfDay.fromDateTime(dateTime);
 
-  Session.weekly({
-    required this.patient,
-    required this.therapist,
-    required this.isWeekly,
-    required this.dayOfWeek,
-    required this.timeOfDay,
-    required this.durationInMinutes, //default duration 30 minutes
-    this.additionalInfo,
-  }) : dateTime = null;
+  Session.weekly(
+      {required this.patient,
+      required this.therapist,
+      required this.isWeekly,
+      required this.dayOfWeek,
+      required this.timeOfDay,
+      required this.durationInMinutes, //default duration 30 minutes
+      this.additionalInfo,
+      this.id})
+      : dateTime = null;
 
   DateTime getSessionStartTime() {
     if (isWeekly) {
@@ -68,6 +71,10 @@ class Session {
         scheduleEndTime.isAtSameMomentAs(checkStartTime)) {
       return false;
     }
+    //check if sessions begin at the same time
+    if (scheduleStartTime.isAtSameMomentAs(checkStartTime)) {
+      return true;
+    }
     //check if sessionToCheck starts during sessionToSchedule
     if (checkStartTime.isAfter(scheduleStartTime) &&
         checkStartTime.isBefore(scheduleEndTime)) {
@@ -88,6 +95,8 @@ class Session {
         scheduleEndTime.isAfter(checkEndTime)) {
       return true;
     }
+
+    ///if the session is rescheduled weekly, we need an additional check here for day and time lining up
     //no overlap
     return false;
   }
@@ -98,7 +107,7 @@ class Session {
   }
 
   static Session fromMap(Map<String, dynamic> map, TheraportalUser patient,
-      TheraportalUser therapist) {
+      TheraportalUser therapist, String docId) {
     if (map['is_weekly']) {
       return Session.weekly(
           patient: patient,
@@ -107,16 +116,17 @@ class Session {
           dayOfWeek: DayOfWeek.fromString(map['day_of_week'])!,
           timeOfDay: Session.parseTimeOfDay(map['time_of_day']!),
           additionalInfo: map['additional_info'],
-          durationInMinutes: map['duration_in_minutes']);
+          durationInMinutes: map['duration_in_minutes'],
+          id: docId);
     } else {
       return Session(
-        patient: patient,
-        therapist: therapist,
-        dateTime: (map['scheduled_for'] as Timestamp).toDate(),
-        additionalInfo: map['additional_info'],
-        isWeekly: map['is_weekly'],
-        durationInMinutes: map['duration_in_minutes'],
-      );
+          patient: patient,
+          therapist: therapist,
+          dateTime: (map['scheduled_for'] as Timestamp).toDate(),
+          additionalInfo: map['additional_info'],
+          isWeekly: map['is_weekly'],
+          durationInMinutes: map['duration_in_minutes'],
+          id: docId);
     }
   }
 
@@ -184,6 +194,11 @@ class Session {
       default:
         throw Exception('Invalid day of week');
     }
+  }
+
+  static void removeOldSessions(List<Session> userSessions) {
+    userSessions.removeWhere(
+        (session) => !isCurrentDayOrLater(session.getSessionStartTime()));
   }
 }
 

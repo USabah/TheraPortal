@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:theraportal/Objects/User.dart';
+import 'package:theraportal/Objects/TheraportalUser.dart';
 import 'package:theraportal/Utilities/AuthRouter.dart';
 import 'package:theraportal/Utilities/DatabaseRouter.dart';
 
@@ -116,6 +116,6 @@ class _RemoveAssignmentDialogState extends State<RemoveAssignmentDialog> {
 
     widget.mapData.removeWhere((element) =>
         element[assignmentTypeString.toLowerCase()].id == selectedAssignmentId);
-    Navigator.of(context).pop(widget.mapData);
+    Navigator.of(context).pop([widget.mapData, selectedAssignmentId]);
   }
 }

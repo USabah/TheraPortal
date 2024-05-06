@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:theraportal/Objects/Session.dart';
-import 'package:theraportal/Objects/User.dart';
+import 'package:theraportal/Objects/TheraportalUser.dart';
 import 'package:theraportal/Utilities/DatabaseRouter.dart';
 import 'package:theraportal/Pages/ScheduleListPage.dart';
 import 'package:theraportal/Widgets/Widgets.dart';
@@ -106,6 +106,8 @@ class _LargeScreenState extends State<LargeScreen>
               fullSessionList: true,
               currentUser: currentUser,
               refreshFunction: widget.refreshFunction,
+              mapData: widget.mapData,
+              onUpdateSessions: widget.onUpdateSessions,
             ),
           ],
         )),

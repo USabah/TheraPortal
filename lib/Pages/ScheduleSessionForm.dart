@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:numberpicker/numberpicker.dart';
 import 'package:theraportal/Objects/Session.dart';
-import 'package:theraportal/Objects/User.dart';
+import 'package:theraportal/Objects/TheraportalUser.dart';
 import 'package:theraportal/Utilities/DatabaseRouter.dart';
 import 'package:theraportal/Widgets/Widgets.dart';
 
@@ -11,7 +11,7 @@ class ScheduleSessionForm extends StatefulWidget {
   final TheraportalUser? selectedPatient;
   final DateTime? day;
   final Session? sessionToEdit;
-  final List<Map<String, dynamic>> patientData;
+  final List<Map<String, dynamic>> mapData;
   final List<Session> scheduledSessions;
   const ScheduleSessionForm(
       {super.key,
@@ -19,7 +19,7 @@ class ScheduleSessionForm extends StatefulWidget {
       this.sessionToEdit,
       required this.day,
       this.selectedPatient,
-      required this.patientData,
+      required this.mapData,
       required this.scheduledSessions});
 
   @override
@@ -35,22 +35,36 @@ class _ScheduleSessionFormState extends State<ScheduleSessionForm> {
   late bool _isWeekly;
   TheraportalUser? _selectedPatient;
   bool isLoading = false;
+  late bool isEditing;
   DatabaseRouter databaseRouter = DatabaseRouter();
 
   @override
   void initState() {
     super.initState();
-    if (widget.sessionToEdit != null) {
+    isEditing = widget.sessionToEdit != null;
+    if (isEditing) {
       _selectedDate = widget.sessionToEdit!.dateTime;
       _selectedTime = widget.sessionToEdit!.timeOfDay;
       _selectedDayOfWeek = widget.sessionToEdit!.dayOfWeek;
       _isWeekly = widget.sessionToEdit!.isWeekly;
       _additionalInfo = widget.sessionToEdit!.additionalInfo;
+      _sessionDuration = widget.sessionToEdit!.durationInMinutes;
+      _selectedPatient = _findPatientById(widget.sessionToEdit!.patient.id);
     } else {
       _selectedDate = widget.day!;
       _isWeekly = false;
+      _selectedPatient = widget.selectedPatient;
     }
-    _selectedPatient = widget.selectedPatient;
+  }
+
+  TheraportalUser? _findPatientById(String id) {
+    for (final data in widget.mapData) {
+      final patient = data['patient'] as TheraportalUser;
+      if (patient.id == id) {
+        return patient;
+      }
+    }
+    return null; // Return null if no matching patient is found
   }
 
   Session sessionFromClass() {
@@ -82,9 +96,13 @@ class _ScheduleSessionFormState extends State<ScheduleSessionForm> {
     }
   }
 
-  Future<bool> createSession(Session session) async {
+  Future<String?> createSession(Session session) async {
     //push session to database
     return await databaseRouter.addSession(session);
+  }
+
+  Future<bool> updateSession(Session session) async {
+    return await databaseRouter.updateSession(session);
   }
 
   Future<void> _selectDate(BuildContext context) async {
@@ -135,19 +153,9 @@ class _ScheduleSessionFormState extends State<ScheduleSessionForm> {
   Future<String?> checkListOfSessionsForOverlap(
       Session sessionToSchedule) async {
     //get patient's scheduled sessions
-    List<Session> patientSessions =
-        await databaseRouter.getAllUserSessions(sessionToSchedule.patient);
-    for (var sessionToCheck in patientSessions) {
-      if (Session.isDuringSession(sessionToSchedule, sessionToCheck)) {
-        DateTime sessionStartTime = sessionToCheck.getSessionStartTime();
-        DateTime sessionEndTime = sessionToCheck.getSessionEndTime();
-        String formattedStartTime = DateFormat.jm().format(sessionStartTime);
-        String formattedEndTime = DateFormat.jm().format(sessionEndTime);
-        return "Patient already has a session scheduled at this time between $formattedStartTime - $formattedEndTime with ${sessionToCheck.therapist.fullNameDisplay(true)}";
-      }
-    }
     for (var sessionToCheck in widget.scheduledSessions) {
-      if (Session.isDuringSession(sessionToSchedule, sessionToCheck)) {
+      if (Session.isDuringSession(sessionToSchedule, sessionToCheck) &&
+          sessionToSchedule.id != sessionToCheck.id) {
         DateTime sessionStartTime = sessionToCheck.getSessionStartTime();
         DateTime sessionEndTime = sessionToCheck.getSessionEndTime();
         String formattedStartTime = DateFormat.jm().format(sessionStartTime);
@@ -155,6 +163,20 @@ class _ScheduleSessionFormState extends State<ScheduleSessionForm> {
         return "You already have a session scheduled at this time between $formattedStartTime - $formattedEndTime with ${sessionToCheck.patient.fullNameDisplay(false)}";
       }
     }
+    List<Session> patientSessions =
+        await databaseRouter.getAllUserSessions(sessionToSchedule.patient);
+    for (var sessionToCheck in patientSessions) {
+      if (Session.isDuringSession(sessionToSchedule, sessionToCheck) &&
+          sessionToSchedule.id != sessionToCheck.id) {
+        DateTime sessionStartTime = sessionToCheck.getSessionStartTime();
+        DateTime sessionEndTime = sessionToCheck.getSessionEndTime();
+        String formattedStartTime = DateFormat.jm().format(sessionStartTime);
+        String formattedEndTime = DateFormat.jm().format(sessionEndTime);
+        print("HERE2");
+        return "Patient already has a session scheduled at this time between $formattedStartTime - $formattedEndTime with ${sessionToCheck.therapist.fullNameDisplay(true)}";
+      }
+    }
+
     return null; //no overlap
   }
 
@@ -212,13 +234,13 @@ class _ScheduleSessionFormState extends State<ScheduleSessionForm> {
                       )
                     else
                       FieldWidget(
-                        label: 'Date:',
+                        label: 'Date',
                         value: DateFormat('MM/dd/yyyy').format(_selectedDate!),
                         onPressed: () => _selectDate(context),
                       ),
                     const SizedBox(height: 20),
                     FieldWidget(
-                      label: 'Session Time:',
+                      label: 'Session Time',
                       value: _selectedTime?.format(context) ?? 'Select Time',
                       onPressed: () => _selectTime(context),
                     ),
@@ -246,7 +268,7 @@ class _ScheduleSessionFormState extends State<ScheduleSessionForm> {
                                 horizontal: 12.0, vertical: 8.0),
                           ),
                           value: _selectedPatient,
-                          items: widget.patientData
+                          items: widget.mapData
                               .map<DropdownMenuItem<TheraportalUser>>((data) {
                             final patient = data['patient'] as TheraportalUser;
                             return DropdownMenuItem(
@@ -276,7 +298,7 @@ class _ScheduleSessionFormState extends State<ScheduleSessionForm> {
                           context: context,
                           builder: (BuildContext context) {
                             return Theme(
-                              data: ThemeData.dark(), // Set dark theme
+                              data: ThemeData.dark(),
                               child: AlertDialog(
                                 title: const Text(
                                     'Select Session Duration (minutes)'),
@@ -289,8 +311,7 @@ class _ScheduleSessionFormState extends State<ScheduleSessionForm> {
                                       value: _sessionDuration ?? 30,
                                       onChanged: (newValue) {
                                         setState(() {
-                                          _sessionDuration =
-                                              newValue; // Update the state variable
+                                          _sessionDuration = newValue;
                                         });
                                       },
                                     );
@@ -334,7 +355,7 @@ class _ScheduleSessionFormState extends State<ScheduleSessionForm> {
                       children: [
                         const Expanded(
                           child: Text(
-                            'Weekly Recurrence:',
+                            'Reschedule Weekly:',
                             style: TextStyle(
                                 fontSize: 18, fontWeight: FontWeight.bold),
                           ),
@@ -387,6 +408,9 @@ class _ScheduleSessionFormState extends State<ScheduleSessionForm> {
                                     isLoading = true;
                                   });
                                   Session session = sessionFromClass();
+                                  session.id = (isEditing)
+                                      ? widget.sessionToEdit!.id
+                                      : null;
                                   //check if another session takes place at this time
                                   String? result =
                                       await checkListOfSessionsForOverlap(
@@ -401,14 +425,22 @@ class _ScheduleSessionFormState extends State<ScheduleSessionForm> {
                                             Navigator.of(context).pop(),
                                         btnText: "Close");
                                   } else {
-                                    bool success = await databaseRouter
-                                        .addSession(session);
+                                    late bool success;
+                                    if (isEditing) {
+                                      success = await updateSession(session);
+                                    } else {
+                                      String? docId =
+                                          await createSession(session);
+                                      session.id = docId;
+                                      success = (docId != null);
+                                    }
                                     if (!success) {
                                       alertFunction(
                                           context: context,
                                           title: "Error",
-                                          content:
-                                              "We could not add the session to your account at this time.",
+                                          content: (isEditing)
+                                              ? "We could not update the session at this time."
+                                              : "We could not add the session to your account at this time.",
                                           onPressed: () =>
                                               Navigator.of(context).pop(),
                                           btnText: "Close",
@@ -417,17 +449,23 @@ class _ScheduleSessionFormState extends State<ScheduleSessionForm> {
                                       alertFunction(
                                           context: context,
                                           title: "Success",
-                                          content:
-                                              "Session successfully scheduled.",
+                                          content: (isEditing)
+                                              ? "Session successfully updated."
+                                              : "Session successfully scheduled.",
                                           onPressed: () => Navigator.of(context)
                                             ..pop()
                                             ..pop(session),
                                           btnText: "Ok");
                                     }
                                   }
+                                  setState(() {
+                                    isLoading = false;
+                                  });
                                 }
                               : null,
-                          child: const Text('Schedule Session'),
+                          child: (widget.sessionToEdit == null)
+                              ? const Text('Schedule Session')
+                              : const Text('Update Session'),
                         ),
                       ],
                     ),
