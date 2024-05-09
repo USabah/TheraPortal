@@ -28,12 +28,12 @@ class ExerciseAssignment {
     };
   }
 
-  factory ExerciseAssignment.fromMap(
-    Map<String, dynamic> map,
-    Exercise exercise,
-    TheraportalUser patient,
-    TheraportalUser therapist,
-  ) {
+  factory ExerciseAssignment.fromMap({
+    required Map<String, dynamic> map,
+    required Exercise exercise,
+    required TheraportalUser patient,
+    required TheraportalUser therapist,
+  }) {
     return ExerciseAssignment(
       exercise: exercise,
       patient: patient,

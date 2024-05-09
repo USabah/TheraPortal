@@ -112,3 +112,10 @@ const logoText = TextStyle(
 const buttonWidthFactor = 0.80;
 const buttonHeightFactor = 0.05;
 const buttonTextStyle = TextStyle(fontSize: 30, color: Colors.black);
+
+// double scaledFontSize(BuildContext context, double fontSize) {
+//   double screenWidth = MediaQuery.of(context).size.width;
+//   const double scaleFactor = 0.03;
+//   double scaledSize = fontSize + (screenWidth * scaleFactor);
+//   return scaledSize;
+// }

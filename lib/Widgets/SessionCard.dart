@@ -34,7 +34,7 @@ class _SessionCardState extends State<SessionCard> {
         '${DateFormat('h:mma').format(widget.session.getSessionStartTime())} - ${DateFormat('h:mma').format(widget.session.getSessionEndTime())}';
 
     return Card(
-      color: const Color.fromARGB(255, 225, 172, 101),
+      color: Color.fromARGB(255, 219, 238, 209),
       child: ListTile(
         title: Text(
           title,

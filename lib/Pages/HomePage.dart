@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:theraportal/Objects/Exercise.dart';
+import 'package:theraportal/Objects/ExerciseAssignment.dart';
 import 'package:theraportal/Objects/Session.dart';
 import 'package:theraportal/Objects/TheraportalUser.dart';
 import 'package:theraportal/Utilities/DatabaseRouter.dart';
@@ -7,12 +9,16 @@ import 'package:theraportal/Widgets/Widgets.dart';
 class Body extends StatelessWidget {
   final TheraportalUser currentUser;
   final List<Map<String, dynamic>> mapData;
+  final List<Exercise> exercises;
+  final Map<String, List<ExerciseAssignment>> exerciseAssignmentsMap;
   final Future<void> Function() refreshFunction;
   const Body(
       {super.key,
       required this.currentUser,
       required this.mapData,
-      required this.refreshFunction});
+      required this.refreshFunction,
+      required this.exercises,
+      required this.exerciseAssignmentsMap});
 
   @override
   Widget build(BuildContext context) {
@@ -21,6 +27,8 @@ class Body extends StatelessWidget {
         currentUser: currentUser,
         mapData: mapData,
         refreshFunction: refreshFunction,
+        exercises: exercises,
+        exerciseAssignmentsMap: exerciseAssignmentsMap,
       ),
     );
   }
@@ -30,11 +38,15 @@ class LargeScreen extends StatefulWidget {
   final TheraportalUser currentUser;
   final List<Map<String, dynamic>> mapData;
   final Future<void> Function() refreshFunction;
+  final List<Exercise> exercises;
+  final Map<String, List<ExerciseAssignment>> exerciseAssignmentsMap;
   const LargeScreen(
       {super.key,
       required this.currentUser,
       required this.mapData,
-      required this.refreshFunction});
+      required this.refreshFunction,
+      required this.exercises,
+      required this.exerciseAssignmentsMap});
 
   @override
   State<LargeScreen> createState() => _LargeScreenState();
@@ -93,9 +105,8 @@ class _LargeScreenState extends State<LargeScreen> {
                           Session? nextSession = therapistInfo['next_session'];
 
                           return TherapistProfileCard(
-                            firstName: therapist.firstName,
-                            lastName: therapist.lastName,
-                            therapistType: therapist.therapistType.toString(),
+                            patient: currentUser,
+                            therapist: therapist,
                             organization: groupName,
                             nextScheduledSession: nextSession,
                             therapistId: therapist.id,
@@ -108,12 +119,13 @@ class _LargeScreenState extends State<LargeScreen> {
                           Session? nextSession = patientInfo['next_session'];
 
                           return PatientProfileCard(
-                            firstName: patient.firstName,
-                            lastName: patient.lastName,
-                            dateOfBirth: patient.dateOfBirth!.toDate(),
+                            therapist: currentUser,
+                            patient: patient,
                             organization: groupName,
                             nextScheduledSession: nextSession,
-                            patientId: patient.id,
+                            exercises: widget.exercises,
+                            exerciseAssignments:
+                                widget.exerciseAssignmentsMap[patient.id] ?? [],
                           );
                         }),
                       SizedBox(
@@ -132,12 +144,16 @@ class HomePage extends StatelessWidget {
   final TheraportalUser currentUser;
   final List<Map<String, dynamic>> mapData;
   final Future<void> Function() refreshFunction;
+  final List<Exercise> exercises;
+  final Map<String, List<ExerciseAssignment>> exerciseAssignmentsMap;
 
   const HomePage(
       {super.key,
       required this.currentUser,
       required this.mapData,
-      required this.refreshFunction});
+      required this.refreshFunction,
+      required this.exercises,
+      required this.exerciseAssignmentsMap});
 
   @override
   Widget build(BuildContext context) {
@@ -147,6 +163,8 @@ class HomePage extends StatelessWidget {
         currentUser: currentUser,
         mapData: mapData,
         refreshFunction: refreshFunction,
+        exercises: exercises,
+        exerciseAssignmentsMap: exerciseAssignmentsMap,
       ),
     );
   }

@@ -1,31 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:theraportal/Objects/Exercise.dart';
+import 'package:theraportal/Objects/ExerciseAssignment.dart';
 import 'package:theraportal/Objects/Session.dart';
+import 'package:theraportal/Objects/TheraportalUser.dart';
 import 'package:theraportal/Pages/CommunicationPage.dart';
+import 'package:theraportal/Pages/ExerciseSelector.dart';
 import 'package:theraportal/Widgets/Widgets.dart';
 
 class PatientProfileCard extends StatelessWidget {
-  final String firstName;
-  final String lastName;
-  final String? organization;
+  final TheraportalUser patient;
+  final TheraportalUser therapist;
   final Session? nextScheduledSession;
-  final DateTime dateOfBirth;
-  final String patientId;
+  final List<Exercise> exercises;
+  final List<ExerciseAssignment> exerciseAssignments;
+  final String? organization;
 
   const PatientProfileCard({
     super.key,
-    required this.firstName,
-    required this.lastName,
-    required this.dateOfBirth,
-    required this.patientId,
-    this.organization,
     this.nextScheduledSession,
+    required this.exercises,
+    required this.exerciseAssignments,
+    required this.patient,
+    required this.therapist,
+    this.organization,
   });
 
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: const Color.fromRGBO(151, 167, 231, 1),
+      color: Color.fromARGB(255, 181, 190, 226),
       child: ListTile(
         contentPadding:
             const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
@@ -34,14 +38,14 @@ class PatientProfileCard extends StatelessWidget {
           size: MediaQuery.of(context).size.height * 0.06,
         ),
         title: Text(
-          '$firstName $lastName',
+          patient.fullNameDisplay(false),
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Date of Birth: ${DateFormat("MM/dd/yyyy").format(dateOfBirth)}',
+              'Date of Birth: ${DateFormat("MM/dd/yyyy").format(patient.dateOfBirth!.toDate())}',
               style: const TextStyle(color: Colors.black),
             ),
             Text(
@@ -62,15 +66,20 @@ class PatientProfileCard extends StatelessWidget {
               case 'View Messages':
                 Navigator.of(context).push(MaterialPageRoute(
                     builder: (context) => CommunicationPage(
-                        withUserId: patientId, name: '$firstName $lastName')));
+                        withUserId: patient.id,
+                        name: patient.fullNameDisplay(false))));
                 break;
               case 'View Assigned Exercises':
                 print('View Assigned Exercises selected');
                 // Add logic to handle sending message
                 break;
-              case 'Add Exercise':
-                print('Add Exercise selected');
-                // Add logic to handle adding exercise
+              case 'Assign Exercise':
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => ExerciseSelector(
+                        fullExerciseList: exercises,
+                        patientExerciseAssignmentList: exerciseAssignments,
+                        therapist: therapist,
+                        patient: patient)));
                 break;
             }
           },
@@ -84,8 +93,8 @@ class PatientProfileCard extends StatelessWidget {
               child: Text('View Assigned Exercises'),
             ),
             const PopupMenuItem<String>(
-              value: 'Add Exercise',
-              child: Text('Add Exercise'),
+              value: 'Assign Exercise',
+              child: Text('Assign Exercise'),
             ),
           ],
         ),

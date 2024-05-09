@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:theraportal/Objects/ExerciseAssignment.dart';
 
-class AssignedExerciseView extends StatelessWidget {
+class ExerciseAssignmentsView extends StatelessWidget {
   final List<ExerciseAssignment> exerciseAssignments;
 
-  const AssignedExerciseView({required this.exerciseAssignments});
+  const ExerciseAssignmentsView({super.key, required this.exerciseAssignments});
 
   @override
   Widget build(BuildContext context) {

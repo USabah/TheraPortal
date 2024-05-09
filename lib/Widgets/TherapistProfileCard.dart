@@ -1,31 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:theraportal/Objects/Session.dart';
+import 'package:theraportal/Objects/TheraportalUser.dart';
 import 'package:theraportal/Pages/CommunicationPage.dart';
 import 'package:theraportal/Widgets/Widgets.dart';
 
 class TherapistProfileCard extends StatelessWidget {
-  final String firstName;
-  final String lastName;
-  final String therapistType;
+  final TheraportalUser patient;
+  final TheraportalUser therapist;
   final String? organization;
   final Session? nextScheduledSession;
   final String therapistId;
 
   const TherapistProfileCard({
     super.key,
-    required this.firstName,
-    required this.lastName,
-    required this.therapistType,
     required this.therapistId,
     this.organization,
     this.nextScheduledSession,
+    required this.patient,
+    required this.therapist,
   });
 
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: const Color.fromARGB(255, 254, 157, 151),
+      color: Color.fromARGB(255, 255, 184, 180),
       child: ListTile(
         contentPadding:
             const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
@@ -34,14 +33,14 @@ class TherapistProfileCard extends StatelessWidget {
           size: MediaQuery.of(context).size.height * 0.06,
         ),
         title: Text(
-          '$firstName ${lastName[0]}.',
+          therapist.fullNameDisplay(true),
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Therapist Type: $therapistType',
+              'Therapist Type: ${therapist.therapistType}',
               style: const TextStyle(color: Colors.black),
             ),
             Text(
@@ -63,7 +62,7 @@ class TherapistProfileCard extends StatelessWidget {
                 Navigator.of(context).push(MaterialPageRoute(
                     builder: (context) => CommunicationPage(
                         withUserId: therapistId,
-                        name: '$firstName ${lastName[0]}.')));
+                        name: therapist.fullNameDisplay(true))));
                 break;
               case 'View Assigned Exercises':
                 print('View Assigned Exercises');

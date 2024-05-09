@@ -4,7 +4,7 @@ import 'package:theraportal/Widgets/Styles.dart';
 class FieldWidget extends StatelessWidget {
   final String label;
   final String value;
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
   final String? errorText; // Optional error text string
 
   const FieldWidget({

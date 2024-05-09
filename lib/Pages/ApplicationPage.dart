@@ -42,8 +42,8 @@ class _LargeScreenState extends State<LargeScreen> {
   List<Session> userSessions = [];
   List<Exercise> exerciseCache =
       []; //cache all exercises (if therapist) but load media only when user opens view
-  Map<String, List<ExerciseAssignment>>?
-      patientExercises; //patient_id to assignments
+  Map<String, List<ExerciseAssignment>> exerciseAssignmentsMap =
+      {}; //patient_id to assignments
 
   @override
   void initState() {
@@ -58,6 +58,7 @@ class _LargeScreenState extends State<LargeScreen> {
       currentUser = user;
       await _loadUserSessionData();
       await _loadUserMapData();
+      await _loadUserExerciseData();
       setState(() {
         _isLoading = false;
         if (initPages) {
@@ -98,9 +99,20 @@ class _LargeScreenState extends State<LargeScreen> {
         print('Error loading patient data: $e');
       }
     }
-    setState(() {
-      _isLoading = false; // Set loading state to false on error
-    });
+  }
+
+  Future<void> _loadUserExerciseData() async {
+    try {
+      //cache exercises for therapist
+      if (currentUser.userType == UserType.Therapist) {
+        exerciseCache = await databaseRouter.getUserExercises(currentUser);
+      }
+      //get exercise assignments for both patient and therapist
+      exerciseAssignmentsMap =
+          await databaseRouter.getUserExerciseAssignments(currentUser);
+    } catch (e) {
+      print('Error loading therapist data: $e');
+    }
   }
 
   void updateSessions(List<Session> updatedSessions) {
@@ -116,6 +128,8 @@ class _LargeScreenState extends State<LargeScreen> {
             currentUser: currentUser,
             mapData: userMapData,
             refreshFunction: _loadUserData,
+            exercises: exerciseCache,
+            exerciseAssignmentsMap: exerciseAssignmentsMap,
           ),
       () => SchedulePage(
             currentUser: currentUser,

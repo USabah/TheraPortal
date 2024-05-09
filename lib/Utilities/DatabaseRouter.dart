@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:theraportal/Objects/Exercise.dart';
+import 'package:theraportal/Objects/ExerciseAssignment.dart';
 import 'package:theraportal/Objects/Session.dart';
 import 'package:theraportal/Objects/TheraportalUser.dart';
 
@@ -653,6 +654,133 @@ class DatabaseRouter {
       return docRef.id;
     } catch (e) {
       print(e);
+      rethrow;
+    }
+  }
+
+  Future<List<Exercise>> getUserExercises(TheraportalUser user) async {
+    List<Exercise> exercises = [];
+    if (user.userType == UserType.Therapist) {
+      QuerySnapshot nullCreatorIdSnapshot = await FirebaseFirestore.instance
+          .collection('Exercises')
+          .where('creator_id', isEqualTo: null)
+          .get();
+
+      QuerySnapshot userCreatorIdSnapshot = await FirebaseFirestore.instance
+          .collection('Exercises')
+          .where('creator_id', isEqualTo: user.id)
+          .get();
+
+      List<QueryDocumentSnapshot> combinedSnapshots = [];
+      combinedSnapshots.addAll(nullCreatorIdSnapshot.docs);
+      combinedSnapshots.addAll(userCreatorIdSnapshot.docs);
+
+      List<String?> creatorIds = combinedSnapshots
+          .map((exerciseDoc) => exerciseDoc.get('creator_id') as String?)
+          .where((creatorId) => creatorId != null)
+          .toList();
+
+      Map<String, TheraportalUser> creators = await fetchUsersByIds(creatorIds);
+
+      exercises.addAll(combinedSnapshots.map((exerciseDoc) {
+        Map<String, dynamic> data = exerciseDoc.data() as Map<String, dynamic>;
+        String? creatorId = data['creator_id'];
+        TheraportalUser? creator;
+        if (creatorId != null) {
+          creator = creators[creatorId];
+        }
+        return Exercise.fromMap(map: data, creator: creator);
+      }));
+    }
+
+    return exercises;
+  }
+
+  Future<Map<String, List<ExerciseAssignment>>> getUserExerciseAssignments(
+      TheraportalUser currentUser) async {
+    Map<String, List<ExerciseAssignment>> userExerciseAssignments = {};
+
+    CollectionReference assignmentsRef =
+        currentUser.userType == UserType.Patient
+            ? FirebaseFirestore.instance.collection('Assignments')
+            : FirebaseFirestore.instance.collection('Assignments');
+
+    bool isPatient = currentUser.userType == UserType.Patient;
+    String fieldName = (isPatient) ? 'patient_id' : 'therapist_id';
+    QuerySnapshot assignmentsSnapshot =
+        await assignmentsRef.where(fieldName, isEqualTo: currentUser.id).get();
+
+    for (QueryDocumentSnapshot assignmentDoc in assignmentsSnapshot.docs) {
+      //get the other ID (depending on user type)
+      String otherId = (isPatient)
+          ? assignmentDoc.get('therapist_id')
+          : assignmentDoc.get('patient_id');
+      TheraportalUser otherUser = await getUser(otherId);
+      //initialize the list for the other ID if it doesn't exist
+      userExerciseAssignments.putIfAbsent(otherId, () => []);
+
+      CollectionReference exerciseAssignmentsRef =
+          assignmentDoc.reference.collection('ExerciseAssignments');
+      QuerySnapshot exerciseAssignmentsSnapshot =
+          await exerciseAssignmentsRef.get();
+
+      for (QueryDocumentSnapshot exerciseAssignmentDoc
+          in exerciseAssignmentsSnapshot.docs) {
+        //convert the document data to ExerciseAssignment object
+        Map<String, dynamic> map =
+            exerciseAssignmentDoc.data() as Map<String, dynamic>;
+        String exerciseId = map["exercise_id"];
+        Exercise exercise = await getExerciseById(exerciseId);
+        ExerciseAssignment exerciseAssignment = ExerciseAssignment.fromMap(
+            map: map,
+            exercise: exercise,
+            patient: (isPatient) ? currentUser : otherUser,
+            therapist: (isPatient) ? otherUser : currentUser);
+
+        //add the exercise assignment to the list under the other ID
+        userExerciseAssignments[otherId]!.add(exerciseAssignment);
+      }
+    }
+
+    return userExerciseAssignments;
+  }
+
+  Future<Map<String, TheraportalUser>> fetchUsersByIds(
+      List<String?> userIds) async {
+    Map<String, TheraportalUser> users = {};
+    for (String? userId in userIds) {
+      if (userId != null) {
+        TheraportalUser user = await getUser(userId);
+        users[userId] = user;
+      }
+    }
+    return users;
+  }
+
+  Future<Exercise> getExerciseById(String exercise_id) async {
+    try {
+      DocumentReference exerciseDocRef =
+          FirebaseFirestore.instance.collection('Exercises').doc(exercise_id);
+      DocumentSnapshot exerciseDocSnapshot = await exerciseDocRef.get();
+
+      //check if the document exists
+      if (exerciseDocSnapshot.exists) {
+        Map<String, dynamic> map =
+            exerciseDocSnapshot.data() as Map<String, dynamic>;
+        TheraportalUser? creator;
+        if (map["creator_id"] != null) {
+          creator = map["creator_id"];
+        }
+        Exercise exercise = Exercise.fromMap(
+          map: map,
+          creator: creator,
+        );
+        return exercise;
+      } else {
+        throw Exception('Exercise with ID $exercise_id not found.');
+      }
+    } catch (e) {
+      print('Error fetching exercise: $e');
       rethrow;
     }
   }

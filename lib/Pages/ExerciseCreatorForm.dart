@@ -159,10 +159,8 @@ class _ExerciseCreatorFormState extends State<ExerciseCreatorForm> {
                                 ? _bodyPartController.text
                                 : "Select Here",
                             onPressed: () {
-                              _showOptionPopup(
-                                  ExerciseConstants.uniqueBodyParts,
-                                  _bodyPartController,
-                                  "Body Part");
+                              _showOptionPopup(ExerciseConstants.bodyParts,
+                                  _bodyPartController, "Body Part");
                             },
                           ),
                           const SizedBox(height: 16.0),
@@ -188,10 +186,8 @@ class _ExerciseCreatorFormState extends State<ExerciseCreatorForm> {
                                 ? _equipmentController.text
                                 : "Select Here (optional)",
                             onPressed: () {
-                              _showOptionPopup(
-                                  ExerciseConstants.uniqueEquipment,
-                                  _equipmentController,
-                                  "Exercise Equipment");
+                              _showOptionPopup(ExerciseConstants.equipment,
+                                  _equipmentController, "Exercise Equipment");
                             },
                           ),
                           const SizedBox(height: 16.0),
@@ -201,10 +197,8 @@ class _ExerciseCreatorFormState extends State<ExerciseCreatorForm> {
                                 ? _targetMuscleController.text
                                 : "Select Here",
                             onPressed: () {
-                              _showOptionPopup(
-                                  ExerciseConstants.uniqueTargetMuscles,
-                                  _targetMuscleController,
-                                  "Target Muscle");
+                              _showOptionPopup(ExerciseConstants.targetMuscles,
+                                  _targetMuscleController, "Target Muscle");
                             },
                           ),
                           const SizedBox(height: 16.0),
@@ -615,10 +609,9 @@ class _ExerciseCreatorFormState extends State<ExerciseCreatorForm> {
                   height: MediaQuery.of(context).size.height * 0.4,
                   width: MediaQuery.of(context).size.width * 0.8,
                   child: ListView.builder(
-                    itemCount: ExerciseConstants.uniqueSecondaryMuscles.length,
+                    itemCount: ExerciseConstants.secondaryMuscles.length,
                     itemBuilder: (BuildContext context, int index) {
-                      final muscle =
-                          ExerciseConstants.uniqueSecondaryMuscles[index];
+                      final muscle = ExerciseConstants.secondaryMuscles[index];
                       final isChecked = newSelectedOptions.contains(muscle);
 
                       return CheckboxListTile(
