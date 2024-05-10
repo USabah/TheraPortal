@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:theraportal/Objects/User.dart';
+import 'package:theraportal/Objects/TheraportalUser.dart';
 import 'package:theraportal/Pages/RegistrationPage.dart';
 import 'package:theraportal/Widgets/Widgets.dart';
 import 'package:intl/intl.dart';
@@ -16,8 +16,8 @@ class Body extends StatelessWidget {
         largeScreen: LargeScreen(userMap: userMap),
       );
     } else {
-      return ErrorWidget(const Text(
-          "Error: Page not accessible with current permissions")); ////Determine what to do with error here
+      return ErrorWidget(
+          const Text("Error: Page not accessible with current permissions"));
     }
   }
 }
@@ -153,7 +153,7 @@ class _LargeScreenState extends State<LargeScreen> {
                             style: ButtonStyle(
                               backgroundColor:
                                   MaterialStateProperty.all<Color?>(
-                                Styles.orangeYellowish,
+                                Styles.beige,
                               ),
                               shape: MaterialStateProperty.all<
                                       RoundedRectangleBorder>(

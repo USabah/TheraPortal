@@ -82,13 +82,25 @@ class TheraportalUser {
       'email': email,
       'first_name': firstName,
       'last_name': lastName,
-      'org_reference_code': groupId,
+      'group_id': groupId,
       'user_type': userType.toString(),
       'date_created': dateCreated, //adjust according to Firestore timestamp
       'user_reference_code': referenceCode,
       'date_of_birth': dateOfBirth,
       'therapist_type': therapistType
     };
+  }
+
+  String fullNameDisplay(bool withDot) {
+    if (userType == UserType.Patient) {
+      return '$firstName $lastName';
+    } else {
+      return '$firstName ${lastName[0]}${(withDot) ? '.' : ''}';
+    }
+  }
+
+  String fullName() {
+    return '$firstName $lastName';
   }
 
   @override

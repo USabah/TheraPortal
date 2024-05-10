@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:theraportal/Objects/User.dart';
+import 'package:theraportal/Objects/TheraportalUser.dart';
 import 'package:theraportal/Pages/DOBPage.dart';
 import 'package:theraportal/Pages/RegistrationPage.dart';
 import 'package:theraportal/Widgets/Widgets.dart';
@@ -217,7 +217,7 @@ class _LargeScreenState extends State<LargeScreen> {
                             style: ButtonStyle(
                               backgroundColor:
                                   MaterialStateProperty.all<Color?>(
-                                Styles.orangeYellowish,
+                                Styles.beige,
                               ),
                               shape: MaterialStateProperty.all<
                                       RoundedRectangleBorder>(

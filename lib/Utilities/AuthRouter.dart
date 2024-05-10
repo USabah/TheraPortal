@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:theraportal/Pages/LandingPage.dart';
 
 class AuthRouter {
-  /// Returns a stream that listens to authentication state changes
+  // Returns a stream that listens to authentication state changes
   static Stream<User?> authMonitor() {
     return FirebaseAuth.instance.authStateChanges();
   }
@@ -12,13 +12,13 @@ class AuthRouter {
     return FirebaseAuth.instance.currentUser != null;
   }
 
-  /// Returns the users UID
+  // Returns the users UID
   static String getUserUID() {
     return FirebaseAuth.instance.currentUser?.uid ?? "";
   }
 
-  ///Generates login credentials using email and password. If an error occurs the
-  ///callback function is invoked.
+  //Generates login credentials using email and password. If an error occurs the
+  //callback function is invoked.
   static Future<User?> login(String email, String password) async {
     try {
       UserCredential userCredential = await FirebaseAuth.instance
@@ -74,12 +74,12 @@ class AuthRouter {
         MaterialPageRoute(builder: (ctxt) => LandingPage()), (route) => false);
   }
 
-  /// Changes the user's password
+  //Changes the user's password
   static void changePassword(String password) async {
     await FirebaseAuth.instance.currentUser?.updatePassword(password);
   }
 
-  /// Changes the user's email.
+  //Changes the user's email.
   static void changeEmail(String email) async {
     await FirebaseAuth.instance.currentUser?.verifyBeforeUpdateEmail(email);
   }

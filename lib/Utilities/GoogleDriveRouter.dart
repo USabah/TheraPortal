@@ -40,21 +40,21 @@ class GoogleDriveRouter {
     }
   }
 
-  Future<Uint8List?> getGifContent(String fileName) async {
+  Future<Uint8List?> getMediaContent(String fileName) async {
     await initializeDriveApi();
     try {
-      // Search for the file with the specified name
+      //search for the file with the specified name
       final response = await driveApi.files.list(q: "name = '$fileName'");
       if (response.files != null && response.files!.isNotEmpty) {
-        // Get the file ID of the first matching file
+        //get the file ID of the first matching file
         final fileId = response.files!.first.id;
-        // Fetch the content of the file
+        //fetch the content of the file
         final drive.Media fileMedia = await driveApi.files.get(
           fileId!,
           downloadOptions: drive.DownloadOptions.fullMedia,
         ) as drive.Media;
 
-        // Read the content of the file from the stream
+        //read the content of the file from the stream
         final List<int> contentBytes = [];
         await for (var chunk in fileMedia.stream) {
           contentBytes.addAll(chunk);
@@ -68,6 +68,48 @@ class GoogleDriveRouter {
     } catch (e) {
       print('Error retrieving file content: $e');
       return null;
+    }
+  }
+
+  Future<bool> uploadExerciseFile(Uint8List content, String fileName) async {
+    await initializeDriveApi();
+    try {
+      //get the ID of the parent folder "exercise_gifs"
+      final String parentFolderId = await getParentFolderId();
+
+      //create file
+      final drive.File file = drive.File();
+      file.name = fileName;
+      file.parents = [parentFolderId];
+
+      //create a Media instance to upload the content
+      final drive.Media media = drive.Media(
+        http.ByteStream.fromBytes(content),
+        content.length,
+      );
+
+      //upload the file content
+      final uploadedFile = await driveApi.files.create(
+        file,
+        uploadMedia: media,
+      );
+      // print('$fileName has been uploaded');
+      return true;
+    } catch (e) {
+      print('Error uploading file: $e');
+      return false;
+    }
+  }
+
+  Future<String> getParentFolderId() async {
+    final response = await driveApi.files.list(
+      q: "name = 'exercise_gifs' and mimeType = 'application/vnd.google-apps.folder'",
+    );
+
+    if (response.files != null && response.files!.isNotEmpty) {
+      return response.files!.first.id!;
+    } else {
+      throw Exception('Parent folder not found');
     }
   }
 }

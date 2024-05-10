@@ -1,4 +1,4 @@
-import 'package:theraportal/Objects/User.dart';
+import 'package:theraportal/Objects/TheraportalUser.dart';
 import 'package:theraportal/Utilities/DatabaseRouter.dart';
 
 class FieldValidator {

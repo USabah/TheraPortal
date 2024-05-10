@@ -44,7 +44,7 @@ class _LargeScreenState extends State<LargeScreen> {
             child: Text("TEST BUTTON"),
             onPressed: () async {
               // await router.listFiles();
-              Uint8List? res = await router.getGifContent("test_gif.gif");
+              Uint8List? res = await router.getMediaContent("test_gif.gif");
               if (res != null) {
                 exerciseMedia = res;
                 print(exerciseMedia);

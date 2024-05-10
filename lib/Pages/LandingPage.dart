@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:theraportal/Pages/AccountTypePage.dart';
 import 'package:theraportal/Pages/SignInPage.dart';
-import 'package:theraportal/Utilities/GoogleDriveRouter.dart';
 import 'package:theraportal/Widgets/Widgets.dart';
 
 class Body extends StatelessWidget {
@@ -9,13 +8,15 @@ class Body extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ResponsiveWidget(
+    return const ResponsiveWidget(
       largeScreen: LargeScreen(),
     );
   }
 }
 
 class LargeScreen extends StatelessWidget {
+  const LargeScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
@@ -24,8 +25,7 @@ class LargeScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Spacer(), // Pushes the logo 1/4 down from the top
-            // Logo or App Name
+            const Spacer(),
             const Text(
               "TheraPortal",
               style: logoText,
@@ -41,7 +41,7 @@ class LargeScreen extends StatelessWidget {
                         MaterialPageRoute(builder: (context) => SignInPage()));
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Styles.orangeYellowish,
+                    backgroundColor: Styles.beige,
                   ),
                   child: const Text(
                     "Login",
@@ -59,7 +59,7 @@ class LargeScreen extends StatelessWidget {
                       builder: (context) => AccountTypePage()));
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Styles.orangeYellowish,
+                  backgroundColor: Styles.beige,
                 ),
                 child: const Text(
                   "Register",

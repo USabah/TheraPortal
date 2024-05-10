@@ -5,18 +5,22 @@ class Styles {
   static const Color dark = Color(0xFF0d0036);
   static const Color white = Color(0xFFFCFDFD);
   static const Color grey = Color.fromARGB(255, 65, 67, 70);
+  static const Color lightGrey = Color.fromARGB(255, 213, 208, 208);
   static const Color darkGrey = Color(0xFF333333);
   static const Color orangeYellowish = Color(0xFFFFA500);
   static const Color beige = Color.fromARGB(255, 253, 180, 121);
+  static const Color babyBlue = Color.fromARGB(214, 104, 204, 244);
+  static const Color darkGreyBlue = Color.fromARGB(255, 62, 77, 88);
 }
 
 var themeStyle = ThemeData(
     primarySwatch: Colors.orange,
     scaffoldBackgroundColor: Styles.darkGrey,
     visualDensity: VisualDensity.adaptivePlatformDensity,
-    bannerTheme:
-        const MaterialBannerThemeData(backgroundColor: Styles.orangeYellowish),
-    appBarTheme: const AppBarTheme(backgroundColor: Styles.orangeYellowish),
+    bannerTheme: const MaterialBannerThemeData(backgroundColor: Styles.beige),
+    appBarTheme: const AppBarTheme(backgroundColor: Styles.beige),
+    bottomNavigationBarTheme:
+        const BottomNavigationBarThemeData(backgroundColor: Styles.beige),
     fontFamily: 'Kanit',
     textTheme: const TextTheme(
         bodySmall: TextStyle(color: Colors.white),
@@ -25,7 +29,22 @@ var themeStyle = ThemeData(
     inputDecorationTheme: const InputDecorationTheme(
         labelStyle: TextStyle(
       color: Styles.beige,
-    )));
+    )),
+    elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ButtonStyle(
+            backgroundColor: MaterialStateProperty.all<Color?>(
+              Styles.beige,
+            ),
+            shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+              RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10.0),
+              ),
+            ),
+            foregroundColor: MaterialStateProperty.all<Color?>(
+              Styles.dark,
+            ),
+            textStyle: MaterialStateProperty.all(
+                TextStyle(fontSize: 16, fontWeight: FontWeight.bold)))));
 
 const outlineBorder = OutlineInputBorder(
   borderRadius: BorderRadius.all(
@@ -66,7 +85,7 @@ const round = BorderRadius.all(
 const boxShadow = BoxShadow(
   spreadRadius: 0.0,
   blurRadius: 0.0,
-  color: Styles.orangeYellowish,
+  color: Styles.beige,
   offset: Offset.zero,
 );
 
@@ -84,7 +103,7 @@ const inputText = TextStyle(
 );
 
 const logoText = TextStyle(
-    color: Styles.orangeYellowish,
+    color: Styles.beige,
     fontSize: 60, // Adjust the font size as needed
     fontWeight: FontWeight.bold,
     fontStyle: FontStyle.italic,
@@ -93,3 +112,10 @@ const logoText = TextStyle(
 const buttonWidthFactor = 0.80;
 const buttonHeightFactor = 0.05;
 const buttonTextStyle = TextStyle(fontSize: 30, color: Colors.black);
+
+// double scaledFontSize(BuildContext context, double fontSize) {
+//   double screenWidth = MediaQuery.of(context).size.width;
+//   const double scaleFactor = 0.03;
+//   double scaledSize = fontSize + (screenWidth * scaleFactor);
+//   return scaledSize;
+// }
