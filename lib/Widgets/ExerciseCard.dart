@@ -18,6 +18,7 @@ class ExerciseCard extends StatelessWidget {
       required bool removeAssignment})? updateExerciseAssignments;
   final bool isCreationView;
   final bool isTherapist;
+  final List<ExerciseAssignment>? patientExerciseAssignmentList;
 
   const ExerciseCard({
     super.key,
@@ -29,10 +30,39 @@ class ExerciseCard extends StatelessWidget {
     required this.updateExerciseAssignments,
     required this.isCreationView,
     required this.isTherapist,
+    this.patientExerciseAssignmentList,
   });
 
   @override
   Widget build(BuildContext context) {
+    final bool isAssigned = (patientExerciseAssignmentList != null)
+        ? patientExerciseAssignmentList!.any((assignment) {
+            return assignment.exercise.id == exercise.id;
+          })
+        : false;
+    final Color backgroundColor = isAssigned
+        ? Colors.grey // Gray out the background if assigned
+        : const Color.fromARGB(255, 235, 227, 190); // Original color
+
+    final Function()? onTap = isAssigned
+        ? null // Disable onTap if assigned
+        : () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ExerciseFullView(
+                  exercise: exercise,
+                  instructions: instructions,
+                  therapist: therapist,
+                  patient: patient,
+                  updateExerciseAssignments: updateExerciseAssignments,
+                  isCreationView: isCreationView,
+                  isTherapist: isTherapist,
+                ),
+              ),
+            );
+          };
+
     const int descCutoffValue = 100;
     String description = exercise.exerciseDescription;
     if (description.length > descCutoffValue) {
@@ -45,7 +75,7 @@ class ExerciseCard extends StatelessWidget {
     }
 
     return Card(
-      color: const Color.fromARGB(255, 235, 227, 190),
+      color: backgroundColor,
       elevation: 4,
       margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
       child: ListTile(
@@ -166,22 +196,7 @@ class ExerciseCard extends StatelessWidget {
             ],
           ],
         ),
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => ExerciseFullView(
-                exercise: exercise,
-                instructions: instructions,
-                therapist: therapist,
-                patient: patient,
-                updateExerciseAssignments: updateExerciseAssignments,
-                isCreationView: isCreationView,
-                isTherapist: isTherapist,
-              ),
-            ),
-          );
-        },
+        onTap: onTap,
       ),
     );
   }

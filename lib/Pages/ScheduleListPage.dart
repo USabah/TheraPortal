@@ -12,6 +12,8 @@ class Body extends StatelessWidget {
   final bool fullSessionList;
   final TheraportalUser currentUser;
   final DateTime? day;
+
+  ///temporary solution
   final Future<void> Function() refreshFunction;
   final Function(List<Session>) onUpdateSessions;
   const Body(
@@ -75,6 +77,7 @@ class _LargeScreenState extends State<LargeScreen> {
               mapData: widget.mapData,
               scheduledSessions: widget.sessions,
               sessionToEdit: sessionToEdit,
+              refreshFunction: widget.refreshFunction,
             ))) as Session?;
     if (editedSession != null) {
       //replace sessionToEdit in widget.sessions with edittedSession
@@ -142,17 +145,24 @@ class _LargeScreenState extends State<LargeScreen> {
             : SingleChildScrollView(
                 physics: const AlwaysScrollableScrollPhysics(),
                 child: widget.sessions.isEmpty
-                    ? Center(
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Text(
-                            widget.currentUser.userType == UserType.Patient
-                                ? "You have no scheduled sessions at the moment."
-                                : "You have no scheduled sessions at the moment. To schedule a session, go to the calendar, select a date, and click on the \"Schedule Session\" button.",
-                            style: const TextStyle(color: Styles.lightGrey),
-                            textAlign: TextAlign.center,
+                    ? Column(
+                        children: [
+                          Center(
+                            child: Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Text(
+                                widget.currentUser.userType == UserType.Patient
+                                    ? "You have no scheduled sessions at the moment."
+                                    : "You have no scheduled sessions at the moment. To schedule a session, go to the calendar, select a date, and click on the \"Schedule Session\" button.",
+                                style: const TextStyle(color: Styles.lightGrey),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
                           ),
-                        ),
+                          SizedBox(
+                            height: MediaQuery.of(context).size.height * 0.5,
+                          )
+                        ],
                       )
                     : Column(
                         children: [

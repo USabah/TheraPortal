@@ -53,16 +53,12 @@ class TheraportalUser {
     required this.userType,
     required this.dateCreated,
     required this.referenceCode,
-
-    ///Need to do a lookup and convert this to group_id
     this.dateOfBirth,
     this.therapistType,
   });
 
   //factory constructor to create a User object from a map
   factory TheraportalUser.fromMap(Map<String, dynamic> user_map) {
-    ///Need to do a lookup and convert this to group_id
-    ///for the referenceCode
     dynamic userType = user_map['user_type'];
     userType = (userType is String) ? userTypeMap[userType] : userType;
     return TheraportalUser(

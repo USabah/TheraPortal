@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:theraportal/Objects/Exercise.dart';
 import 'package:theraportal/Objects/ExerciseAssignment.dart';
 import 'package:theraportal/Objects/Session.dart';
@@ -732,6 +733,7 @@ class DatabaseRouter {
             exerciseAssignmentDoc.data() as Map<String, dynamic>;
         String exerciseId = map["exercise_id"];
         Exercise exercise = await getExerciseById(exerciseId);
+        exercise.id = exerciseId;
         ExerciseAssignment exerciseAssignment = ExerciseAssignment.fromMap(
             map: map,
             exercise: exercise,
@@ -844,5 +846,48 @@ class DatabaseRouter {
       print('Error removing exercise assignment: $e');
       return false;
     }
+  }
+
+  Future<void> deleteAccount(TheraportalUser currentUser) async {
+    // Remove all assignments
+    await _firestore
+        .collection('Assignments')
+        .where('patient_id', isEqualTo: currentUser.id)
+        .get()
+        .then((querySnapshot) {
+      querySnapshot.docs.forEach((doc) {
+        doc.reference.delete();
+      });
+    });
+
+    await _firestore
+        .collection('Assignments')
+        .where('therapist_id', isEqualTo: currentUser.id)
+        .get()
+        .then((querySnapshot) {
+      querySnapshot.docs.forEach((doc) {
+        doc.reference.delete();
+      });
+    });
+
+    // Delete exercises
+    await _firestore
+        .collection('Exercises')
+        .where('creator_id', isEqualTo: currentUser.id)
+        .get()
+        .then((querySnapshot) {
+      querySnapshot.docs.forEach((doc) {
+        doc.reference.delete();
+      });
+    });
+
+    // Remove account from Firebase Auth
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      await user.delete();
+    }
+
+    // Remove account from Users collection
+    await _firestore.collection('Users').doc(currentUser.id).delete();
   }
 }

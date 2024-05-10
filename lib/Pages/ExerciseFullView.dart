@@ -223,7 +223,10 @@ class _ExerciseFullViewState extends State<ExerciseFullView> {
                                     return AlertDialog(
                                       title: const Text('Remove Assignment'),
                                       content: Text(
-                                          'Are you sure you want to remove ${widget.patient.fullNameDisplay(false)}\'s assigned exercise?'),
+                                        'Are you sure you want to remove ${widget.patient.fullNameDisplay(false)}\'s assigned exercise?',
+                                        style: const TextStyle(
+                                            color: Colors.black),
+                                      ),
                                       actions: [
                                         TextButton(
                                           onPressed: () {
@@ -260,7 +263,6 @@ class _ExerciseFullViewState extends State<ExerciseFullView> {
                                     isLoading = false;
                                   });
                                   if (success) {
-                                    ///also need a callback to remove from list of exercises
                                     widget.updateExerciseAssignments!(
                                         exerciseId: widget.exercise.id,
                                         patientId: widget.patient.id,
@@ -270,7 +272,7 @@ class _ExerciseFullViewState extends State<ExerciseFullView> {
                                         context: context,
                                         title: "Success",
                                         content:
-                                            "Exercise Assignment successfully added to patient.",
+                                            "Assigned exercise successfully removed.",
                                         onPressed: () => Navigator.of(context)
                                           ..pop()
                                           ..pop()
@@ -401,7 +403,7 @@ class _InstructionDialogState extends State<InstructionDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Enter Instructions'),
+      title: const Text('Enter Instructions (optional)'),
       content: TextField(
         controller: _controller,
         decoration: const InputDecoration(hintText: 'Instructions'),

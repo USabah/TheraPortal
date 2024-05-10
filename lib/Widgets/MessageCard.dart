@@ -31,7 +31,7 @@ class _MessagesCardState extends State<MessagesCard> {
   @override
   Widget build(BuildContext context) {
     String cardTitle;
-    String subtitle;
+    Widget subtitle;
 
     if (widget.userType == UserType.Patient) {
       cardTitle = '${widget.firstName} ${widget.lastName}';
@@ -42,12 +42,48 @@ class _MessagesCardState extends State<MessagesCard> {
     //determine subtitle based on last message content and sender
     if (widget.lastMessageContent != null) {
       if (widget.sentByCurrentUser) {
-        subtitle = 'You: ${widget.lastMessageContent}';
+        subtitle = RichText(
+          text: TextSpan(
+            children: [
+              const TextSpan(
+                text: 'You:',
+                style: TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold, // Bold style
+                ),
+              ),
+              TextSpan(
+                text: ' ${widget.lastMessageContent}',
+                style: const TextStyle(
+                  color: Colors.black,
+                ),
+              ), // Rest of the text
+            ],
+          ),
+        );
       } else {
-        subtitle = '${widget.firstName}: ${widget.lastMessageContent}';
+        subtitle = RichText(
+          text: TextSpan(
+            children: [
+              TextSpan(
+                text: '${widget.firstName}:',
+                style: const TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold, // Bold style
+                ),
+              ), // Text before the colon
+              TextSpan(
+                text: ' ${widget.lastMessageContent}',
+                style: const TextStyle(
+                  color: Colors.black,
+                ),
+              ), // Rest of the text
+            ],
+          ),
+        );
       }
     } else {
-      subtitle = 'Click here to message ${widget.firstName}';
+      subtitle = Text('Click here to message ${widget.firstName}');
     }
 
     //format message timestamp for display
@@ -57,10 +93,13 @@ class _MessagesCardState extends State<MessagesCard> {
         : '';
 
     return Card(
-      color: Color.fromARGB(255, 248, 221, 169),
+      color: const Color.fromARGB(255, 248, 221, 169),
       child: ListTile(
-        title: Text(cardTitle),
-        subtitle: Text(subtitle),
+        title: Text(
+          cardTitle,
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
+        subtitle: subtitle,
         trailing: Column(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [

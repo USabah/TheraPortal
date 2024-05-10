@@ -51,17 +51,51 @@ class PatientProfileCard extends StatelessWidget {
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Date of Birth: ${DateFormat("MM/dd/yyyy").format(patient.dateOfBirth!.toDate())}',
-              style: const TextStyle(color: Colors.black),
+            Text.rich(
+              TextSpan(
+                style: const TextStyle(color: Colors.black),
+                children: [
+                  const TextSpan(
+                    text: 'Date of Birth: ',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  TextSpan(
+                    text: DateFormat("MM/dd/yyyy")
+                        .format(patient.dateOfBirth!.toDate()),
+                  ),
+                ],
+              ),
             ),
-            Text(
-              'Organization: ${organization ?? "None"}',
-              style: const TextStyle(color: Colors.black),
+            Text.rich(
+              TextSpan(
+                style: const TextStyle(color: Colors.black),
+                children: [
+                  const TextSpan(
+                    text: 'Organization: ',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  TextSpan(
+                    text: organization ?? "None",
+                  ),
+                ],
+              ),
             ),
-            Text(
-              'Next Session: ${nextScheduledSession != null ? DateFormat('EEEE \'at\' h:mma \'(\'M/d/yy\')\'').format(nextScheduledSession!.getSessionStartTime()) : "Not Scheduled"}',
-              style: const TextStyle(color: Colors.black),
+            Text.rich(
+              TextSpan(
+                style: const TextStyle(color: Colors.black),
+                children: [
+                  const TextSpan(
+                    text: 'Next Session: ',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  TextSpan(
+                    text: nextScheduledSession != null
+                        ? DateFormat('EEEE \'at\' h:mma \'(\'M/d/yy\')\'')
+                            .format(nextScheduledSession!.getSessionStartTime())
+                        : "Not Scheduled",
+                  ),
+                ],
+              ),
             ),
           ],
         ),

@@ -43,17 +43,50 @@ class TherapistProfileCard extends StatelessWidget {
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Therapist Type: ${therapist.therapistType}',
-              style: const TextStyle(color: Colors.black),
+            Text.rich(
+              TextSpan(
+                style: const TextStyle(color: Colors.black),
+                children: [
+                  const TextSpan(
+                    text: 'Therapist Type: ',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  TextSpan(
+                    text: '${therapist.therapistType}',
+                  ),
+                ],
+              ),
             ),
-            Text(
-              'Organization: ${organization ?? "None"}',
-              style: const TextStyle(color: Colors.black),
+            Text.rich(
+              TextSpan(
+                style: const TextStyle(color: Colors.black),
+                children: [
+                  const TextSpan(
+                    text: 'Organization: ',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  TextSpan(
+                    text: organization ?? "None",
+                  ),
+                ],
+              ),
             ),
-            Text(
-              'Next Session: ${nextScheduledSession != null ? DateFormat('EEEE \'at\' h:mma \'(\'M/d/yy\')\'').format(nextScheduledSession!.getSessionStartTime()) : "Not Scheduled"}',
-              style: const TextStyle(color: Colors.black),
+            Text.rich(
+              TextSpan(
+                style: const TextStyle(color: Colors.black),
+                children: [
+                  const TextSpan(
+                    text: 'Next Session: ',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  TextSpan(
+                    text: nextScheduledSession != null
+                        ? DateFormat('EEEE \'at\' h:mma \'(\'M/d/yy\')\'')
+                            .format(nextScheduledSession!.getSessionStartTime())
+                        : "Not Scheduled",
+                  ),
+                ],
+              ),
             ),
           ],
         ),

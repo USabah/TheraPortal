@@ -8,7 +8,6 @@ import 'package:theraportal/Widgets/Widgets.dart';
 class ExerciseSelector extends StatefulWidget {
   final List<Exercise> fullExerciseList;
 
-  ///use this to determine which exercises they can't add
   final List<ExerciseAssignment> patientExerciseAssignmentList;
 
   final TheraportalUser therapist;
@@ -447,6 +446,8 @@ class _ExerciseSelectorState extends State<ExerciseSelector> {
                           widget.updateExerciseAssignments,
                       isCreationView: true,
                       isTherapist: true,
+                      patientExerciseAssignmentList:
+                          widget.patientExerciseAssignmentList,
                     );
                   },
                 ),
@@ -477,6 +478,8 @@ class _ExerciseSelectorState extends State<ExerciseSelector> {
                           widget.updateExerciseAssignments,
                       isCreationView: true,
                       isTherapist: true,
+                      patientExerciseAssignmentList:
+                          widget.patientExerciseAssignmentList,
                     );
                   },
                 ),

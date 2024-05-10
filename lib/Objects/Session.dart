@@ -66,6 +66,23 @@ class Session {
     DateTime checkStartTime = sessionToCheck.getSessionStartTime();
     DateTime checkEndTime = sessionToCheck.getSessionEndTime();
 
+    //if weekly, make sure day/time don't match up
+    if (sessionToSchedule.isWeekly || sessionToCheck.isWeekly) {
+      if (sessionToSchedule.dayOfWeek == sessionToCheck.dayOfWeek) {
+        //update datetimes to ignore day
+        scheduleStartTime = DateTime(0, 0, 0, sessionToSchedule.timeOfDay.hour,
+            sessionToSchedule.timeOfDay.minute);
+        scheduleEndTime = scheduleStartTime
+            .add(Duration(minutes: sessionToSchedule.durationInMinutes));
+        checkStartTime = DateTime(0, 0, 0, sessionToCheck.timeOfDay.hour,
+            sessionToCheck.timeOfDay.minute);
+        checkEndTime = checkStartTime
+            .add(Duration(minutes: sessionToCheck.durationInMinutes));
+      } else {
+        return false;
+      }
+    }
+
     //check if sessionToCheck's end time is equal to sessionToSchedule's start time
     if (checkEndTime.isAtSameMomentAs(scheduleStartTime) ||
         scheduleEndTime.isAtSameMomentAs(checkStartTime)) {
@@ -95,8 +112,6 @@ class Session {
         scheduleEndTime.isAfter(checkEndTime)) {
       return true;
     }
-
-    ///if the session is rescheduled weekly, we need an additional check here for day and time lining up
     //no overlap
     return false;
   }

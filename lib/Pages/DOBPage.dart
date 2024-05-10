@@ -16,8 +16,8 @@ class Body extends StatelessWidget {
         largeScreen: LargeScreen(userMap: userMap),
       );
     } else {
-      return ErrorWidget(const Text(
-          "Error: Page not accessible with current permissions")); ////Determine what to do with error here
+      return ErrorWidget(
+          const Text("Error: Page not accessible with current permissions"));
     }
   }
 }

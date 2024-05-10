@@ -127,8 +127,13 @@ class _LargeScreenState extends State<LargeScreen> {
       ExerciseAssignment? exerciseAssignment,
       required String patientId,
       required bool removeAssignment}) {
-    ///rewrite this to allow removal
     if (removeAssignment) {
+      List<ExerciseAssignment> listExerciseAssignments =
+          exerciseAssignmentsMap[patientId]!;
+      //remove where element.exercise.id == exerciseId
+      listExerciseAssignments
+          .removeWhere((element) => element.exercise.id == exerciseId);
+      exerciseAssignmentsMap[patientId];
     } else {
       if (exerciseAssignmentsMap.containsKey(patientId)) {
         //add to list

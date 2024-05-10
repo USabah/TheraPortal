@@ -52,6 +52,7 @@ class LargeScreen extends StatefulWidget {
       ExerciseAssignment? exerciseAssignment,
       required String patientId,
       required bool removeAssignment}) updateExerciseAssignments;
+
   const LargeScreen(
       {super.key,
       required this.currentUser,
@@ -68,13 +69,11 @@ class LargeScreen extends StatefulWidget {
 class _LargeScreenState extends State<LargeScreen> {
   late TheraportalUser currentUser;
   DatabaseRouter databaseRouter = DatabaseRouter();
-  late List<Map<String, dynamic>> mapData;
   bool isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    mapData = widget.mapData;
     currentUser = widget.currentUser;
   }
 
@@ -93,66 +92,75 @@ class _LargeScreenState extends State<LargeScreen> {
       },
       child: (isLoading)
           ? Container()
-          : (mapData.isEmpty)
-              ? Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Text(
-                      currentUser.userType == UserType.Patient
-                          ? "You have no assigned therapists at this time. Go to your settings page to add a therapist to your account."
-                          : "You have no assigned patients at this time. Go to your settings page to add a patient to your account.",
-                      style: const TextStyle(color: Styles.lightGrey),
-                      textAlign: TextAlign.center,
+          : SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              child: (widget.mapData.isEmpty)
+                  ? Column(
+                      children: [
+                        Center(
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Text(
+                              currentUser.userType == UserType.Patient
+                                  ? "You have no assigned therapists at this time. Go to your settings page to add a therapist to your account."
+                                  : "You have no assigned patients at this time. Go to your settings page to add a patient to your account.",
+                              style: const TextStyle(color: Styles.lightGrey),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.5,
+                        ),
+                      ],
+                    )
+                  : Column(
+                      children: [
+                        if (currentUser.userType == UserType.Patient)
+                          ...widget.mapData.map((therapistInfo) {
+                            TheraportalUser therapist =
+                                therapistInfo['therapist'];
+                            String? groupName = therapistInfo['group_name'];
+                            Session? nextSession =
+                                therapistInfo['next_session'];
+
+                            return TherapistProfileCard(
+                              patient: currentUser,
+                              therapist: therapist,
+                              organization: groupName,
+                              nextScheduledSession: nextSession,
+                              therapistId: therapist.id,
+                              exerciseAssignments:
+                                  widget.exerciseAssignmentsMap[therapist.id] ??
+                                      [],
+                            );
+                          })
+                        else if (currentUser.userType == UserType.Therapist)
+                          ...widget.mapData.map((patientInfo) {
+                            TheraportalUser patient = patientInfo['patient'];
+                            String? groupName = patientInfo['group_name'];
+                            Session? nextSession = patientInfo['next_session'];
+
+                            return PatientProfileCard(
+                              therapist: currentUser,
+                              patient: patient,
+                              organization: groupName,
+                              nextScheduledSession: nextSession,
+                              exercises: widget.exercises,
+                              exerciseAssignments:
+                                  widget.exerciseAssignmentsMap[patient.id] ??
+                                      [],
+                              updateExerciseAssignments:
+                                  widget.updateExerciseAssignments,
+                            );
+                          }),
+                        SizedBox(
+                          //allows for sliding card without clipping into scaffold
+                          height: MediaQuery.of(context).size.height * 0.18,
+                        )
+                      ],
                     ),
-                  ),
-                )
-              : SingleChildScrollView(
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  child: Column(
-                    children: [
-                      if (currentUser.userType == UserType.Patient)
-                        ...mapData.map((therapistInfo) {
-                          TheraportalUser therapist =
-                              therapistInfo['therapist'];
-                          String? groupName = therapistInfo['group_name'];
-                          Session? nextSession = therapistInfo['next_session'];
-
-                          return TherapistProfileCard(
-                            patient: currentUser,
-                            therapist: therapist,
-                            organization: groupName,
-                            nextScheduledSession: nextSession,
-                            therapistId: therapist.id,
-                            exerciseAssignments:
-                                widget.exerciseAssignmentsMap[therapist.id] ??
-                                    [],
-                          );
-                        })
-                      else if (currentUser.userType == UserType.Therapist)
-                        ...mapData.map((patientInfo) {
-                          TheraportalUser patient = patientInfo['patient'];
-                          String? groupName = patientInfo['group_name'];
-                          Session? nextSession = patientInfo['next_session'];
-
-                          return PatientProfileCard(
-                            therapist: currentUser,
-                            patient: patient,
-                            organization: groupName,
-                            nextScheduledSession: nextSession,
-                            exercises: widget.exercises,
-                            exerciseAssignments:
-                                widget.exerciseAssignmentsMap[patient.id] ?? [],
-                            updateExerciseAssignments:
-                                widget.updateExerciseAssignments,
-                          );
-                        }),
-                      SizedBox(
-                        //allows for sliding card without clipping into scaffold
-                        height: MediaQuery.of(context).size.height * 0.18,
-                      )
-                    ],
-                  ),
-                ),
+            ),
     ));
   }
 }

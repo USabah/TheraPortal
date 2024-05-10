@@ -13,6 +13,7 @@ class ScheduleSessionForm extends StatefulWidget {
   final Session? sessionToEdit;
   final List<Map<String, dynamic>> mapData;
   final List<Session> scheduledSessions;
+  final Future<void> Function() refreshFunction;
   const ScheduleSessionForm(
       {super.key,
       required this.currentUser,
@@ -20,7 +21,8 @@ class ScheduleSessionForm extends StatefulWidget {
       required this.day,
       this.selectedPatient,
       required this.mapData,
-      required this.scheduledSessions});
+      required this.scheduledSessions,
+      required this.refreshFunction});
 
   @override
   _ScheduleSessionFormState createState() => _ScheduleSessionFormState();
@@ -172,7 +174,6 @@ class _ScheduleSessionFormState extends State<ScheduleSessionForm> {
         DateTime sessionEndTime = sessionToCheck.getSessionEndTime();
         String formattedStartTime = DateFormat.jm().format(sessionStartTime);
         String formattedEndTime = DateFormat.jm().format(sessionEndTime);
-        print("HERE2");
         return "Patient already has a session scheduled at this time between $formattedStartTime - $formattedEndTime with ${sessionToCheck.therapist.fullNameDisplay(true)}";
       }
     }
@@ -446,6 +447,7 @@ class _ScheduleSessionFormState extends State<ScheduleSessionForm> {
                                           btnText: "Close",
                                           isDismissable: false);
                                     } else {
+                                      widget.refreshFunction();
                                       alertFunction(
                                           context: context,
                                           title: "Success",

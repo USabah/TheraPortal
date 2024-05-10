@@ -157,6 +157,7 @@ class _CalendarTableViewState extends State<CalendarTableView> {
                                     sessionToEdit: null,
                                     mapData: widget.mapData,
                                     scheduledSessions: widget.sessions,
+                                    refreshFunction: widget.refreshFunction,
                                   ),
                                 )) as Session?;
                                 if (session != null) {
