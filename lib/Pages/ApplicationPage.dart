@@ -211,6 +211,7 @@ class _LargeScreenState extends State<LargeScreen> {
                             mapData: userMapData,
                             exerciseCache: exerciseCache,
                             userSessions: userSessions,
+                            refreshFunction: _loadUserData,
                           ))) as List<dynamic>?;
               if (tempData != null) {
                 List<Map<String, dynamic>> tempMapData = tempData[0];

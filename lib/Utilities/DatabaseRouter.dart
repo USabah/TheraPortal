@@ -772,8 +772,10 @@ class DatabaseRouter {
             exerciseDocSnapshot.data() as Map<String, dynamic>;
         TheraportalUser? creator;
         if (map["creator_id"] != null) {
-          creator = map["creator_id"];
+          String temp = map["creator_id"];
+          creator = await getUser(temp);
         }
+
         Exercise exercise = Exercise.fromMap(
           map: map,
           creator: creator,

@@ -406,6 +406,7 @@ class _InstructionDialogState extends State<InstructionDialog> {
       title: const Text('Enter Instructions (optional)'),
       content: TextField(
         controller: _controller,
+        style: const TextStyle(color: Colors.black),
         decoration: const InputDecoration(hintText: 'Instructions'),
       ),
       actions: <Widget>[

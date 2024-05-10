@@ -14,12 +14,14 @@ class Body extends StatelessWidget {
   final List<Map<String, dynamic>> mapData;
   final List<Exercise> exerciseCache;
   final List<Session> userSessions;
+  final Future<void> Function() refreshFunction;
   const Body(
       {super.key,
       required this.currentUser,
       required this.mapData,
       required this.exerciseCache,
-      required this.userSessions});
+      required this.userSessions,
+      required this.refreshFunction});
 
   @override
   Widget build(BuildContext context) {
@@ -29,6 +31,7 @@ class Body extends StatelessWidget {
         mapData: mapData,
         exerciseCache: exerciseCache,
         userSessions: userSessions,
+        refreshFunction: refreshFunction,
       ),
     );
   }
@@ -39,13 +42,15 @@ class LargeScreen extends StatefulWidget {
   List<Map<String, dynamic>> mapData;
   final List<Exercise> exerciseCache;
   final List<Session> userSessions;
+  final Future<void> Function() refreshFunction;
 
   LargeScreen(
       {super.key,
       required this.currentUser,
       required this.mapData,
       required this.exerciseCache,
-      required this.userSessions});
+      required this.userSessions,
+      required this.refreshFunction});
 
   @override
   State<LargeScreen> createState() => _LargeScreenState();
@@ -64,7 +69,7 @@ class _LargeScreenState extends State<LargeScreen> {
       ),
       body: PopScope(
         canPop: false,
-        onPopInvoked: (didPop) {
+        onPopInvoked: (didPop) async {
           if (didPop) {
             return;
           }
@@ -295,6 +300,8 @@ class _LargeScreenState extends State<LargeScreen> {
                                                         ExerciseConstants
                                                             .numDefaultExercises,
                                                     user: widget.currentUser,
+                                                    refreshFunction:
+                                                        widget.refreshFunction,
                                                   ))) as Exercise?;
                                   if (exercise != null) {
                                     widget.exerciseCache.add(exercise);
@@ -435,13 +442,15 @@ class SettingsPage extends StatelessWidget {
   final List<Exercise> exerciseCache;
   final List<Session> userSessions;
   static const Key pageKey = Key("Settings Page");
+  final Future<void> Function() refreshFunction;
 
   const SettingsPage(
       {super.key,
       required this.currentUser,
       required this.mapData,
       required this.exerciseCache,
-      required this.userSessions});
+      required this.userSessions,
+      required this.refreshFunction});
 
   @override
   Widget build(BuildContext context) {
@@ -452,6 +461,7 @@ class SettingsPage extends StatelessWidget {
         mapData: mapData,
         exerciseCache: exerciseCache,
         userSessions: userSessions,
+        refreshFunction: refreshFunction,
       ),
     );
   }

@@ -13,11 +13,13 @@ import 'package:video_player/video_player.dart';
 class ExerciseCreatorForm extends StatefulWidget {
   final TheraportalUser user;
   final int numExercisesCreated;
+  final Future<void> Function() refreshFunction;
 
   const ExerciseCreatorForm({
     super.key,
     required this.user,
     required this.numExercisesCreated,
+    required this.refreshFunction,
   });
 
   @override
@@ -122,185 +124,196 @@ class _ExerciseCreatorFormState extends State<ExerciseCreatorForm> {
       appBar: AppBar(
         title: const Text('Create Exercise'),
       ),
-      body: (isLoading)
-          ? const Center(
-              child: CircularProgressIndicator(),
-            )
-          : Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Expanded(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Form(
-                      key: _formKey,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          TextFormField(
-                            controller: _nameController,
-                            maxLength: 50,
-                            onChanged: (_) {
-                              setState(() {});
-                            },
-                            decoration: const InputDecoration(
-                              labelText: 'Exercise Name',
-                              labelStyle: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Styles.beige,
-                              ),
-                              border: OutlineInputBorder(),
-                            ),
-                          ),
-                          const SizedBox(height: 16.0),
-                          FieldWidget(
-                            label: 'Body Part',
-                            value: (_bodyPartController.text != "")
-                                ? _bodyPartController.text
-                                : "Select Here",
-                            onPressed: () {
-                              _showOptionPopup(ExerciseConstants.bodyParts,
-                                  _bodyPartController, "Body Part");
-                            },
-                          ),
-                          const SizedBox(height: 16.0),
-                          TextFormField(
-                            controller: _exerciseDescriptionController,
-                            maxLength: 150,
-                            onChanged: (_) {
-                              setState(() {});
-                            },
-                            decoration: const InputDecoration(
-                              labelText: 'Exercise Description',
-                              labelStyle: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Styles.beige,
-                              ),
-                              border: OutlineInputBorder(),
-                            ),
-                          ),
-                          const SizedBox(height: 16.0),
-                          FieldWidget(
-                            label: 'Equipment',
-                            value: (_equipmentController.text != "")
-                                ? _equipmentController.text
-                                : "Select Here (optional)",
-                            onPressed: () {
-                              _showOptionPopup(ExerciseConstants.equipment,
-                                  _equipmentController, "Exercise Equipment");
-                            },
-                          ),
-                          const SizedBox(height: 16.0),
-                          FieldWidget(
-                            label: 'Target Muscle',
-                            value: (_targetMuscleController.text != "")
-                                ? _targetMuscleController.text
-                                : "Select Here",
-                            onPressed: () {
-                              _showOptionPopup(ExerciseConstants.targetMuscles,
-                                  _targetMuscleController, "Target Muscle");
-                            },
-                          ),
-                          const SizedBox(height: 16.0),
-                          FieldWidget(
-                            // select up to 3 secondary muscles
-                            label: 'Secondary Muscles',
-                            value: (_secondaryMusclesController.text != "")
-                                ? _secondaryMusclesController.text
-                                : "Select Here (optional)",
-                            onPressed: _showSecondaryMusclesPopup,
-                          ),
-                          const SizedBox(height: 16.0),
-                          if (fileSelector)
-                            FieldWidget(
-                                label: "Exercise Media",
-                                value: (mediaContent == null)
-                                    ? "Select Here (optional)"
-                                    : "Reselect Media",
-                                errorText: mediaErrorText,
-                                onPressed: _pickFile)
-                          else
-                            FieldWidget(
-                                label: "Exercise Media",
-                                value: (mediaContent == null)
-                                    ? "Select Here (optional)"
-                                    : "Reselect Media",
-                                errorText: mediaErrorText,
-                                onPressed: () async {
-                                  final picker = ImagePicker();
-                                  final pickedFile = await picker.pickMedia();
-                                  if (pickedFile != null) {
-                                    // Handle the picked image file
-                                    mediaContent =
-                                        await pickedFile.readAsBytes();
-                                    setState(() {
-                                      mediaPath = pickedFile.path;
-                                      extension = _getFileExtension(
-                                          pickedFile.mimeType!);
-                                    });
-                                  }
-                                }),
-                          const SizedBox(
-                            height: 16,
-                          ),
-                          Row(
-                            children: [
-                              const Expanded(
-                                child: Text(
-                                  'Select From Files:',
-                                  style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold),
+      body: PopScope(
+        canPop: true,
+        onPopInvoked: (didPop) {
+          if (didPop) {
+            return;
+          }
+          widget.refreshFunction();
+        },
+        child: (isLoading)
+            ? const Center(
+                child: CircularProgressIndicator(),
+              )
+            : Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Expanded(
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Form(
+                        key: _formKey,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            TextFormField(
+                              controller: _nameController,
+                              maxLength: 50,
+                              onChanged: (_) {
+                                setState(() {});
+                              },
+                              decoration: const InputDecoration(
+                                labelText: 'Exercise Name',
+                                labelStyle: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Styles.beige,
                                 ),
+                                border: OutlineInputBorder(),
                               ),
-                              Switch(
-                                value: fileSelector,
-                                onChanged: (value) {
-                                  setState(() {
-                                    fileSelector = value;
-                                  });
-                                },
+                            ),
+                            const SizedBox(height: 16.0),
+                            FieldWidget(
+                              label: 'Body Part',
+                              value: (_bodyPartController.text != "")
+                                  ? _bodyPartController.text
+                                  : "Select Here",
+                              onPressed: () {
+                                _showOptionPopup(ExerciseConstants.bodyParts,
+                                    _bodyPartController, "Body Part");
+                              },
+                            ),
+                            const SizedBox(height: 16.0),
+                            TextFormField(
+                              controller: _exerciseDescriptionController,
+                              maxLength: 150,
+                              onChanged: (_) {
+                                setState(() {});
+                              },
+                              decoration: const InputDecoration(
+                                labelText: 'Exercise Description',
+                                labelStyle: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Styles.beige,
+                                ),
+                                border: OutlineInputBorder(),
                               ),
-                              IconButton(
-                                onPressed: _showMediaToggleInfoDialog,
-                                icon: const Icon(Icons.help_outline),
-                                color: Colors.grey,
+                            ),
+                            const SizedBox(height: 16.0),
+                            FieldWidget(
+                              label: 'Equipment',
+                              value: (_equipmentController.text != "")
+                                  ? _equipmentController.text
+                                  : "Select Here (optional)",
+                              onPressed: () {
+                                _showOptionPopup(ExerciseConstants.equipment,
+                                    _equipmentController, "Exercise Equipment");
+                              },
+                            ),
+                            const SizedBox(height: 16.0),
+                            FieldWidget(
+                              label: 'Target Muscle',
+                              value: (_targetMuscleController.text != "")
+                                  ? _targetMuscleController.text
+                                  : "Select Here",
+                              onPressed: () {
+                                _showOptionPopup(
+                                    ExerciseConstants.targetMuscles,
+                                    _targetMuscleController,
+                                    "Target Muscle");
+                              },
+                            ),
+                            const SizedBox(height: 16.0),
+                            FieldWidget(
+                              // select up to 3 secondary muscles
+                              label: 'Secondary Muscles',
+                              value: (_secondaryMusclesController.text != "")
+                                  ? _secondaryMusclesController.text
+                                  : "Select Here (optional)",
+                              onPressed: _showSecondaryMusclesPopup,
+                            ),
+                            const SizedBox(height: 16.0),
+                            if (fileSelector)
+                              FieldWidget(
+                                  label: "Exercise Media",
+                                  value: (mediaContent == null)
+                                      ? "Select Here (optional)"
+                                      : "Reselect Media",
+                                  errorText: mediaErrorText,
+                                  onPressed: _pickFile)
+                            else
+                              FieldWidget(
+                                  label: "Exercise Media",
+                                  value: (mediaContent == null)
+                                      ? "Select Here (optional)"
+                                      : "Reselect Media",
+                                  errorText: mediaErrorText,
+                                  onPressed: () async {
+                                    final picker = ImagePicker();
+                                    final pickedFile = await picker.pickMedia();
+                                    if (pickedFile != null) {
+                                      // Handle the picked image file
+                                      mediaContent =
+                                          await pickedFile.readAsBytes();
+                                      setState(() {
+                                        mediaPath = pickedFile.path;
+                                        extension = _getFileExtension(
+                                            pickedFile.mimeType!);
+                                      });
+                                    }
+                                  }),
+                            const SizedBox(
+                              height: 16,
+                            ),
+                            Row(
+                              children: [
+                                const Expanded(
+                                  child: Text(
+                                    'Select From Files:',
+                                    style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                                Switch(
+                                  value: fileSelector,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      fileSelector = value;
+                                    });
+                                  },
+                                ),
+                                IconButton(
+                                  onPressed: _showMediaToggleInfoDialog,
+                                  icon: const Icon(Icons.help_outline),
+                                  color: Colors.grey,
+                                )
+                              ],
+                            ),
+                            const SizedBox(
+                              height: 16,
+                            ),
+                            if (mediaContent != null)
+                              ElevatedButton(
+                                onPressed: _showMediaOptionsDialog,
+                                child: const Text('View/Remove Media'),
                               )
-                            ],
-                          ),
-                          const SizedBox(
-                            height: 16,
-                          ),
-                          if (mediaContent != null)
-                            ElevatedButton(
-                              onPressed: _showMediaOptionsDialog,
-                              child: const Text('View/Remove Media'),
-                            )
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: ElevatedButton(
-                    style: (FieldsAreValid())
-                        ? const ButtonStyle()
-                        : const ButtonStyle(
-                            backgroundColor:
-                                MaterialStatePropertyAll(Colors.grey),
-                            textStyle: MaterialStatePropertyAll(
-                                TextStyle(fontWeight: FontWeight.w300)),
-                          ),
-                    onPressed: (FieldsAreValid()) ? _submitForm : null,
-                    child: const Text('Submit'),
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: ElevatedButton(
+                      style: (FieldsAreValid())
+                          ? const ButtonStyle()
+                          : const ButtonStyle(
+                              backgroundColor:
+                                  MaterialStatePropertyAll(Colors.grey),
+                              textStyle: MaterialStatePropertyAll(
+                                  TextStyle(fontWeight: FontWeight.w300)),
+                            ),
+                      onPressed: (FieldsAreValid()) ? _submitForm : null,
+                      child: const Text('Submit'),
+                    ),
                   ),
-                ),
-                SizedBox(
-                  height: MediaQuery.of(context).size.height * 0.02,
-                )
-              ],
-            ),
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.02,
+                  )
+                ],
+              ),
+      ),
     );
   }
 

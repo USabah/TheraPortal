@@ -8,7 +8,7 @@ class MessagesCard extends StatefulWidget {
   final String lastName;
   final UserType userType;
   String? lastMessageContent;
-  final bool sentByCurrentUser;
+  bool sentByCurrentUser;
   final DateTime? messageTimestamp;
   final String withUserId;
 
@@ -111,10 +111,12 @@ class _MessagesCardState extends State<MessagesCard> {
           ],
         ),
         onTap: () async {
-          widget.lastMessageContent = await Navigator.of(context).push(
+          List<dynamic> listInfo = await Navigator.of(context).push(
               MaterialPageRoute(
                   builder: (context) => CommunicationPage(
                       withUserId: widget.withUserId, name: cardTitle)));
+          widget.lastMessageContent = listInfo[0];
+          widget.sentByCurrentUser = listInfo[1];
           setState(() {});
         },
       ),

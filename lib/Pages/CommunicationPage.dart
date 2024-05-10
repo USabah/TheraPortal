@@ -55,6 +55,7 @@ class ChatContainer extends StatelessWidget {
   final String withUserId;
   DatabaseRouter databaseRouter = DatabaseRouter();
   String? lastMessage;
+  bool sentByCurrentUserId = true;
 
   ChatContainer({super.key, required this.withUserId}); //
 
@@ -66,7 +67,7 @@ class ChatContainer extends StatelessWidget {
         if (didPop) {
           return;
         }
-        Navigator.of(context).pop(lastMessage);
+        Navigator.of(context).pop([lastMessage, sentByCurrentUserId]);
       },
       child: FutureBuilder<Stream<QuerySnapshot>>(
           future: databaseRouter.fetchMessageStream(currentUserId, withUserId),
@@ -94,6 +95,9 @@ class ChatContainer extends StatelessWidget {
                       }
                       lastMessage = (messages.last.data()!
                           as Map<String, dynamic>)['message_content'] as String;
+                      sentByCurrentUserId = (messages.last.data()!
+                              as Map<String, dynamic>)['sender_id'] ==
+                          currentUserId;
                       return Flexible(
                           child: GestureDetector(
                         onTap: () {
