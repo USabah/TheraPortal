@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:theraportal/Objects/ExerciseAssignment.dart';
 import 'package:theraportal/Objects/Session.dart';
 import 'package:theraportal/Objects/TheraportalUser.dart';
 import 'package:theraportal/Pages/CommunicationPage.dart';
+import 'package:theraportal/Pages/ExerciseAssignmentsView.dart';
 import 'package:theraportal/Widgets/Widgets.dart';
 
 class TherapistProfileCard extends StatelessWidget {
@@ -11,6 +13,7 @@ class TherapistProfileCard extends StatelessWidget {
   final String? organization;
   final Session? nextScheduledSession;
   final String therapistId;
+  final List<ExerciseAssignment> exerciseAssignments;
 
   const TherapistProfileCard({
     super.key,
@@ -19,6 +22,7 @@ class TherapistProfileCard extends StatelessWidget {
     this.nextScheduledSession,
     required this.patient,
     required this.therapist,
+    required this.exerciseAssignments,
   });
 
   @override
@@ -65,8 +69,13 @@ class TherapistProfileCard extends StatelessWidget {
                         name: therapist.fullNameDisplay(true))));
                 break;
               case 'View Assigned Exercises':
-                print('View Assigned Exercises');
-                // Add logic to handle adding note
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => ExerciseAssignmentsView(
+                          exerciseAssignments: exerciseAssignments,
+                          isTherapist: false,
+                          updateExerciseAssignments: null,
+                          otherUser: therapist,
+                        )));
                 break;
             }
           },

@@ -663,7 +663,7 @@ class DatabaseRouter {
     if (user.userType == UserType.Therapist) {
       QuerySnapshot nullCreatorIdSnapshot = await FirebaseFirestore.instance
           .collection('Exercises')
-          .where('creator_id', isEqualTo: null)
+          .where('creator_id', isNull: true)
           .get();
 
       QuerySnapshot userCreatorIdSnapshot = await FirebaseFirestore.instance
@@ -689,6 +689,7 @@ class DatabaseRouter {
         if (creatorId != null) {
           creator = creators[creatorId];
         }
+        data['id'] = exerciseDoc.id;
         return Exercise.fromMap(map: data, creator: creator);
       }));
     }
@@ -782,6 +783,66 @@ class DatabaseRouter {
     } catch (e) {
       print('Error fetching exercise: $e');
       rethrow;
+    }
+  }
+
+  Future<bool> addExerciseAssignment(
+      ExerciseAssignment exerciseAssignment) async {
+    try {
+      QuerySnapshot<Map<String, dynamic>> querySnapshot = await _firestore
+          .collection('Assignments')
+          .where('patient_id', isEqualTo: exerciseAssignment.patient.id)
+          .where('therapist_id', isEqualTo: exerciseAssignment.therapist.id)
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        DocumentReference exerciseDocRef = querySnapshot.docs.first.reference;
+        await exerciseDocRef.collection('ExerciseAssignments').add(
+              exerciseAssignment.toMap(),
+            );
+      } else {
+        //document doesn't exist
+        return false;
+      }
+      return true;
+    } catch (e) {
+      print('Error adding exercise assignment: $e');
+      return false;
+    }
+  }
+
+  Future<bool> removeExerciseAssignment(
+      String exerciseId, String patientId, String therapistId) async {
+    try {
+      QuerySnapshot<Map<String, dynamic>> querySnapshot = await _firestore
+          .collection('Assignments')
+          .where('patient_id', isEqualTo: patientId)
+          .where('therapist_id', isEqualTo: therapistId)
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        DocumentReference assignmentDocRef = querySnapshot.docs.first.reference;
+        QuerySnapshot<Map<String, dynamic>> exerciseAssignmentQuerySnapshot =
+            await assignmentDocRef
+                .collection('ExerciseAssignments')
+                .where('exercise_id', isEqualTo: exerciseId)
+                .get();
+
+        if (exerciseAssignmentQuerySnapshot.docs.isNotEmpty) {
+          //remove the exercise assignment document
+          await exerciseAssignmentQuerySnapshot.docs.first.reference.delete();
+          return true;
+        } else {
+          //exercise assignment document not found
+          return false;
+        }
+      } else {
+        //assignment document not found
+        return false;
+      }
+    } catch (e) {
+      print('Error removing exercise assignment: $e');
+      return false;
     }
   }
 }

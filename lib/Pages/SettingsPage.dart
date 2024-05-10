@@ -224,7 +224,7 @@ class LargeScreen extends StatelessWidget {
                                   session.patient.id == assignmentId &&
                                   session.therapist.id == currentUser.id);
 
-                              ///remove sessions from the patient as well
+                              ///remove sessions from the patient map as well
                             }
                           },
                         ),
@@ -292,7 +292,7 @@ class LargeScreen extends StatelessWidget {
                                 },
                                 child: const Text('Cancel'),
                               ),
-                              ElevatedButton(
+                              TextButton(
                                 onPressed: () {
                                   // isPoppingToLandingScreen = true;
                                   AuthRouter.logout(); // Perform logout

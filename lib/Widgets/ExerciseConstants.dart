@@ -1,5 +1,5 @@
 class ExerciseConstants {
-  static const int numDefaultExercises = 1325;
+  static const int numDefaultExercises = 1324;
 
   static const List<String> bodyParts = [
     'Back',

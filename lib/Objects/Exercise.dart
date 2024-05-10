@@ -13,7 +13,7 @@ class Exercise {
   final String? fileName;
   final List<String>? secondaryMuscles;
   final String targetMuscle;
-  final Uint8List? mediaContent; // GIFs/images/videos
+  Uint8List? mediaContent; // GIFs/images/videos
 
   Exercise({
     this.id,

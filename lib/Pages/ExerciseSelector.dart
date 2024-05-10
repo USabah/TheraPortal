@@ -7,9 +7,17 @@ import 'package:theraportal/Widgets/Widgets.dart';
 
 class ExerciseSelector extends StatefulWidget {
   final List<Exercise> fullExerciseList;
+
+  ///use this to determine which exercises they can't add
   final List<ExerciseAssignment> patientExerciseAssignmentList;
+
   final TheraportalUser therapist;
   final TheraportalUser patient;
+  final void Function(
+      {String? exerciseId,
+      ExerciseAssignment? exerciseAssignment,
+      required String patientId,
+      required bool removeAssignment}) updateExerciseAssignments;
 
   const ExerciseSelector({
     super.key,
@@ -17,6 +25,7 @@ class ExerciseSelector extends StatefulWidget {
     required this.patientExerciseAssignmentList,
     required this.therapist,
     required this.patient,
+    required this.updateExerciseAssignments,
   });
 
   @override
@@ -434,6 +443,10 @@ class _ExerciseSelectorState extends State<ExerciseSelector> {
                       instructions: null,
                       therapist: widget.therapist,
                       patient: widget.patient,
+                      updateExerciseAssignments:
+                          widget.updateExerciseAssignments,
+                      isCreationView: true,
+                      isTherapist: true,
                     );
                   },
                 ),
@@ -460,6 +473,10 @@ class _ExerciseSelectorState extends State<ExerciseSelector> {
                       instructions: null,
                       therapist: widget.therapist,
                       patient: widget.patient,
+                      updateExerciseAssignments:
+                          widget.updateExerciseAssignments,
+                      isCreationView: true,
+                      isTherapist: true,
                     );
                   },
                 ),

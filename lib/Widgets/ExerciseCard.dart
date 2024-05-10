@@ -1,22 +1,34 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:theraportal/Objects/Exercise.dart';
+import 'package:theraportal/Objects/ExerciseAssignment.dart';
 import 'package:theraportal/Objects/TheraportalUser.dart';
 import 'package:theraportal/Pages/ExerciseFullView.dart';
 
 class ExerciseCard extends StatelessWidget {
   final Exercise exercise;
-  final TheraportalUser? therapist;
-  final TheraportalUser? patient;
+  final TheraportalUser therapist;
+  final TheraportalUser patient;
   final String? instructions;
   final DateTime? dateAssigned;
+  final void Function(
+      {String? exerciseId,
+      ExerciseAssignment? exerciseAssignment,
+      required String patientId,
+      required bool removeAssignment})? updateExerciseAssignments;
+  final bool isCreationView;
+  final bool isTherapist;
 
   const ExerciseCard({
     super.key,
     required this.exercise,
-    this.therapist,
-    this.patient,
+    required this.therapist,
+    required this.patient,
     this.instructions,
     this.dateAssigned,
+    required this.updateExerciseAssignments,
+    required this.isCreationView,
+    required this.isTherapist,
   });
 
   @override
@@ -41,8 +53,8 @@ class ExerciseCard extends StatelessWidget {
           text: TextSpan(
             style: const TextStyle(
               fontWeight: FontWeight.bold,
-              fontSize: 18, // Increased font size
-              color: Colors.black, // Set text color to black
+              fontSize: 18,
+              color: Colors.black,
             ),
             children: [
               TextSpan(text: exercise.name),
@@ -52,12 +64,12 @@ class ExerciseCard extends StatelessWidget {
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (instructions != null) ...[
+            if (instructions != null && instructions!.trim() != "") ...[
               RichText(
                 text: TextSpan(
                   style: DefaultTextStyle.of(context).style.copyWith(
-                        fontSize: 15, // Increased font size
-                        color: Colors.black, // Set text color to black
+                        fontSize: 15,
+                        color: Colors.black,
                       ),
                   children: <TextSpan>[
                     const TextSpan(
@@ -73,8 +85,8 @@ class ExerciseCard extends StatelessWidget {
             RichText(
               text: TextSpan(
                 style: DefaultTextStyle.of(context).style.copyWith(
-                      fontSize: 16, // Increased font size
-                      color: Colors.black, // Set text color to black
+                      fontSize: 16,
+                      color: Colors.black,
                     ),
                 children: <TextSpan>[
                   const TextSpan(
@@ -88,8 +100,8 @@ class ExerciseCard extends StatelessWidget {
             RichText(
               text: TextSpan(
                 style: DefaultTextStyle.of(context).style.copyWith(
-                      fontSize: 16, // Increased font size
-                      color: Colors.black, // Set text color to black
+                      fontSize: 16,
+                      color: Colors.black,
                     ),
                 children: <TextSpan>[
                   const TextSpan(
@@ -103,8 +115,8 @@ class ExerciseCard extends StatelessWidget {
             RichText(
               text: TextSpan(
                 style: DefaultTextStyle.of(context).style.copyWith(
-                      fontSize: 16, // Increased font size
-                      color: Colors.black, // Set text color to black
+                      fontSize: 16,
+                      color: Colors.black,
                     ),
                 children: <TextSpan>[
                   const TextSpan(
@@ -119,8 +131,8 @@ class ExerciseCard extends StatelessWidget {
               RichText(
                 text: TextSpan(
                   style: DefaultTextStyle.of(context).style.copyWith(
-                        fontSize: 16, // Increased font size
-                        color: Colors.black, // Set text color to black
+                        fontSize: 16,
+                        color: Colors.black,
                       ),
                   children: <TextSpan>[
                     const TextSpan(
@@ -136,15 +148,18 @@ class ExerciseCard extends StatelessWidget {
               RichText(
                 text: TextSpan(
                   style: DefaultTextStyle.of(context).style.copyWith(
-                        fontSize: 16, // Increased font size
-                        color: Colors.black, // Set text color to black
+                        fontSize: 16,
+                        color: Colors.black,
                       ),
                   children: <TextSpan>[
                     const TextSpan(
                       text: 'Date Assigned: ',
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
-                    TextSpan(text: dateAssigned.toString()),
+                    TextSpan(
+                      text: DateFormat('MM/dd/yyyy \'at\' hh:mm a')
+                          .format(dateAssigned!),
+                    ),
                   ],
                 ),
               ),
@@ -160,6 +175,9 @@ class ExerciseCard extends StatelessWidget {
                 instructions: instructions,
                 therapist: therapist,
                 patient: patient,
+                updateExerciseAssignments: updateExerciseAssignments,
+                isCreationView: isCreationView,
+                isTherapist: isTherapist,
               ),
             ),
           );

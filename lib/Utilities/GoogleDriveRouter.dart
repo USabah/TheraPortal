@@ -93,7 +93,7 @@ class GoogleDriveRouter {
         file,
         uploadMedia: media,
       );
-      print('$fileName has been uploaded');
+      // print('$fileName has been uploaded');
       return true;
     } catch (e) {
       print('Error uploading file: $e');

@@ -5,6 +5,7 @@ import 'package:theraportal/Objects/ExerciseAssignment.dart';
 import 'package:theraportal/Objects/Session.dart';
 import 'package:theraportal/Objects/TheraportalUser.dart';
 import 'package:theraportal/Pages/CommunicationPage.dart';
+import 'package:theraportal/Pages/ExerciseAssignmentsView.dart';
 import 'package:theraportal/Pages/ExerciseSelector.dart';
 import 'package:theraportal/Widgets/Widgets.dart';
 
@@ -15,6 +16,11 @@ class PatientProfileCard extends StatelessWidget {
   final List<Exercise> exercises;
   final List<ExerciseAssignment> exerciseAssignments;
   final String? organization;
+  final void Function(
+      {String? exerciseId,
+      ExerciseAssignment? exerciseAssignment,
+      required String patientId,
+      required bool removeAssignment}) updateExerciseAssignments;
 
   const PatientProfileCard({
     super.key,
@@ -24,6 +30,7 @@ class PatientProfileCard extends StatelessWidget {
     required this.patient,
     required this.therapist,
     this.organization,
+    required this.updateExerciseAssignments,
   });
 
   @override
@@ -70,16 +77,24 @@ class PatientProfileCard extends StatelessWidget {
                         name: patient.fullNameDisplay(false))));
                 break;
               case 'View Assigned Exercises':
-                print('View Assigned Exercises selected');
-                // Add logic to handle sending message
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => ExerciseAssignmentsView(
+                          exerciseAssignments: exerciseAssignments,
+                          isTherapist: true,
+                          updateExerciseAssignments: updateExerciseAssignments,
+                          otherUser: patient,
+                        )));
+
                 break;
               case 'Assign Exercise':
                 Navigator.of(context).push(MaterialPageRoute(
                     builder: (context) => ExerciseSelector(
-                        fullExerciseList: exercises,
-                        patientExerciseAssignmentList: exerciseAssignments,
-                        therapist: therapist,
-                        patient: patient)));
+                          fullExerciseList: exercises,
+                          patientExerciseAssignmentList: exerciseAssignments,
+                          therapist: therapist,
+                          patient: patient,
+                          updateExerciseAssignments: updateExerciseAssignments,
+                        )));
                 break;
             }
           },

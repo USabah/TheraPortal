@@ -122,6 +122,24 @@ class _LargeScreenState extends State<LargeScreen> {
     });
   }
 
+  void updateExerciseAssignments(
+      {String? exerciseId,
+      ExerciseAssignment? exerciseAssignment,
+      required String patientId,
+      required bool removeAssignment}) {
+    ///rewrite this to allow removal
+    if (removeAssignment) {
+    } else {
+      if (exerciseAssignmentsMap.containsKey(patientId)) {
+        //add to list
+        exerciseAssignmentsMap[patientId]!.add(exerciseAssignment!);
+      } else {
+        //assignment map is empty
+        exerciseAssignmentsMap[patientId] = [exerciseAssignment!];
+      }
+    }
+  }
+
   _initPages() {
     pages = [
       () => HomePage(
@@ -130,6 +148,7 @@ class _LargeScreenState extends State<LargeScreen> {
             refreshFunction: _loadUserData,
             exercises: exerciseCache,
             exerciseAssignmentsMap: exerciseAssignmentsMap,
+            updateExerciseAssignments: updateExerciseAssignments,
           ),
       () => SchedulePage(
             currentUser: currentUser,

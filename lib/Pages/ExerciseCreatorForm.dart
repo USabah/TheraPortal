@@ -240,8 +240,6 @@ class _ExerciseCreatorFormState extends State<ExerciseCreatorForm> {
                                     });
                                   }
                                 }),
-
-                          ///image selector
                           const SizedBox(
                             height: 16,
                           ),

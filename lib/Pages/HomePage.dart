@@ -12,13 +12,19 @@ class Body extends StatelessWidget {
   final List<Exercise> exercises;
   final Map<String, List<ExerciseAssignment>> exerciseAssignmentsMap;
   final Future<void> Function() refreshFunction;
+  final void Function(
+      {String? exerciseId,
+      ExerciseAssignment? exerciseAssignment,
+      required String patientId,
+      required bool removeAssignment}) updateExerciseAssignments;
   const Body(
       {super.key,
       required this.currentUser,
       required this.mapData,
       required this.refreshFunction,
       required this.exercises,
-      required this.exerciseAssignmentsMap});
+      required this.exerciseAssignmentsMap,
+      required this.updateExerciseAssignments});
 
   @override
   Widget build(BuildContext context) {
@@ -29,6 +35,7 @@ class Body extends StatelessWidget {
         refreshFunction: refreshFunction,
         exercises: exercises,
         exerciseAssignmentsMap: exerciseAssignmentsMap,
+        updateExerciseAssignments: updateExerciseAssignments,
       ),
     );
   }
@@ -40,13 +47,19 @@ class LargeScreen extends StatefulWidget {
   final Future<void> Function() refreshFunction;
   final List<Exercise> exercises;
   final Map<String, List<ExerciseAssignment>> exerciseAssignmentsMap;
+  final void Function(
+      {String? exerciseId,
+      ExerciseAssignment? exerciseAssignment,
+      required String patientId,
+      required bool removeAssignment}) updateExerciseAssignments;
   const LargeScreen(
       {super.key,
       required this.currentUser,
       required this.mapData,
       required this.refreshFunction,
       required this.exercises,
-      required this.exerciseAssignmentsMap});
+      required this.exerciseAssignmentsMap,
+      required this.updateExerciseAssignments});
 
   @override
   State<LargeScreen> createState() => _LargeScreenState();
@@ -110,6 +123,9 @@ class _LargeScreenState extends State<LargeScreen> {
                             organization: groupName,
                             nextScheduledSession: nextSession,
                             therapistId: therapist.id,
+                            exerciseAssignments:
+                                widget.exerciseAssignmentsMap[therapist.id] ??
+                                    [],
                           );
                         })
                       else if (currentUser.userType == UserType.Therapist)
@@ -126,6 +142,8 @@ class _LargeScreenState extends State<LargeScreen> {
                             exercises: widget.exercises,
                             exerciseAssignments:
                                 widget.exerciseAssignmentsMap[patient.id] ?? [],
+                            updateExerciseAssignments:
+                                widget.updateExerciseAssignments,
                           );
                         }),
                       SizedBox(
@@ -146,6 +164,11 @@ class HomePage extends StatelessWidget {
   final Future<void> Function() refreshFunction;
   final List<Exercise> exercises;
   final Map<String, List<ExerciseAssignment>> exerciseAssignmentsMap;
+  final void Function(
+      {String? exerciseId,
+      ExerciseAssignment? exerciseAssignment,
+      required String patientId,
+      required bool removeAssignment}) updateExerciseAssignments;
 
   const HomePage(
       {super.key,
@@ -153,7 +176,8 @@ class HomePage extends StatelessWidget {
       required this.mapData,
       required this.refreshFunction,
       required this.exercises,
-      required this.exerciseAssignmentsMap});
+      required this.exerciseAssignmentsMap,
+      required this.updateExerciseAssignments});
 
   @override
   Widget build(BuildContext context) {
@@ -165,6 +189,7 @@ class HomePage extends StatelessWidget {
         refreshFunction: refreshFunction,
         exercises: exercises,
         exerciseAssignmentsMap: exerciseAssignmentsMap,
+        updateExerciseAssignments: updateExerciseAssignments,
       ),
     );
   }

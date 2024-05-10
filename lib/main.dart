@@ -2,16 +2,20 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:theraportal/Pages/ApplicationPage.dart';
 import 'package:theraportal/Pages/LandingPage.dart';
-import 'package:theraportal/Utilities/AuthRouter.dart';
 import 'package:theraportal/Widgets/Widgets.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
+import 'package:flutter/services.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
   runApp(const Directionality(textDirection: TextDirection.ltr, child: App()));
 }
 
